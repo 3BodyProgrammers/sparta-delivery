@@ -1,6 +1,8 @@
 package com.example.spartadelivery.domain.store.entity;
 
 import com.example.spartadelivery.common.entity.BaseEntity;
+import com.example.spartadelivery.config.LocalTimeConverter;
+import com.example.spartadelivery.domain.store.dto.request.StoreUpdateRequestDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -47,5 +49,12 @@ public class Store extends BaseEntity {
 
     public static Store toEntity(String name, LocalTime openAt, LocalTime closeAt, Integer minimumPrice, Long userId, String userRole) {
         return new Store(name, openAt, closeAt, minimumPrice, userId, userRole);
+    }
+
+    public void update(StoreUpdateRequestDto request) {
+        this.name = request.getName();
+        this.openAt = LocalTimeConverter.toLocalTime(request.getOpenAt());
+        this.closeAt = LocalTimeConverter.toLocalTime(request.getCloseAt());
+        this.minimumPrice = request.getMinimumPrice();
     }
 }

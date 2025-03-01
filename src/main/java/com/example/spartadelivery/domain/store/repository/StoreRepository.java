@@ -15,4 +15,5 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
     boolean existsByName(String name);
 
     Page<Store> findAllByNameContaining(@Nullable String name, Pageable pageable);
+
 }

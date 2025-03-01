@@ -1,6 +1,7 @@
 package com.example.spartadelivery.domain.store.controller;
 
 import com.example.spartadelivery.domain.store.dto.request.StoreSaveRequestDto;
+import com.example.spartadelivery.domain.store.dto.request.StoreUpdateRequestDto;
 import com.example.spartadelivery.domain.store.dto.response.StoreDetailResponseDto;
 import com.example.spartadelivery.domain.store.dto.response.StoreResponseDto;
 import com.example.spartadelivery.domain.store.dto.response.StoreSaveResponseDto;
@@ -19,8 +20,8 @@ public class StoreController {
 
     //Todo : 이후 유저 구현시 AuthUser로 변환
     @PostMapping("/stores")
-    public ResponseEntity<StoreSaveResponseDto> save(Long userId, String userRole, StoreSaveRequestDto request) {
-        StoreSaveResponseDto response = storeService.save(userId, userRole, request);
+    public ResponseEntity<StoreSaveResponseDto> saveStore(Long userId, String userRole, @RequestBody StoreSaveRequestDto request) {
+        StoreSaveResponseDto response = storeService.saveStore(userId, userRole, request);
         return ResponseEntity.ok(response);
     }
 
@@ -32,5 +33,12 @@ public class StoreController {
     @GetMapping("/stores/{id}")
     public ResponseEntity<StoreDetailResponseDto> getStore(@PathVariable Long id) {
         return ResponseEntity.ok(storeService.getStore(id));
+    }
+
+    //Todo : 이후 유저 구현시 AuthUser로 변환
+    @PutMapping("/stores/{id}")
+    public ResponseEntity<StoreResponseDto> updaeteStore(@PathVariable Long id, Long userId, String userRole, @RequestBody StoreUpdateRequestDto request) {
+        StoreResponseDto response = storeService.updateStore(id, userId, userRole, request);
+        return ResponseEntity.ok(response);
     }
 }

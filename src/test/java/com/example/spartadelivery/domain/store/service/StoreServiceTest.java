@@ -2,6 +2,7 @@ package com.example.spartadelivery.domain.store.service;
 
 import com.example.spartadelivery.common.exception.CustomException;
 import com.example.spartadelivery.domain.store.dto.request.StoreSaveRequestDto;
+import com.example.spartadelivery.domain.store.dto.request.StoreUpdateRequestDto;
 import com.example.spartadelivery.domain.store.dto.response.StoreDetailResponseDto;
 import com.example.spartadelivery.domain.store.dto.response.StoreResponseDto;
 import com.example.spartadelivery.domain.store.dto.response.StoreSaveResponseDto;
@@ -53,7 +54,7 @@ class StoreServiceTest {
             String userRole = "USER";
 
             // when & then
-            assertThatThrownBy(() -> storeService.save(userId, userRole, storeSaveRequestDto))
+            assertThatThrownBy(() -> storeService.saveStore(userId, userRole, storeSaveRequestDto))
                     .isInstanceOf(CustomException.class)
                     .hasMessage("가게 생성은 사장님만 가능합니다.");
         }
@@ -67,7 +68,7 @@ class StoreServiceTest {
             given(storeRepository.countByUserId(anyLong())).willReturn(3);
 
             // when & then
-            assertThatThrownBy(() -> storeService.save(userId, userRole, storeSaveRequestDto))
+            assertThatThrownBy(() -> storeService.saveStore(userId, userRole, storeSaveRequestDto))
                     .isInstanceOf(CustomException.class)
                     .hasMessage("가게 생성은 인당 최대 3개 까지만 가능합니다.");
         }
@@ -81,7 +82,7 @@ class StoreServiceTest {
             given(storeRepository.existsByName(anyString())).willReturn(true);
 
             // when & then
-            assertThatThrownBy(() -> storeService.save(userId, userRole, storeSaveRequestDto))
+            assertThatThrownBy(() -> storeService.saveStore(userId, userRole, storeSaveRequestDto))
                     .isInstanceOf(CustomException.class)
                     .hasMessage("해당 가게 이름이 이미 존재 합니다.");
         }
@@ -99,7 +100,7 @@ class StoreServiceTest {
             given(storeRepository.save(any())).willReturn(store);
 
             // when
-            StoreSaveResponseDto response = storeService.save(userId, userRole, storeSaveRequestDto);
+            StoreSaveResponseDto response = storeService.saveStore(userId, userRole, storeSaveRequestDto);
 
             // then
             assertThat(response).isNotNull();
@@ -196,4 +197,77 @@ class StoreServiceTest {
         }
     }
 
+
+    @Nested
+    class storeUpdateTest {
+
+        private Store store;
+        private StoreUpdateRequestDto updateRequest;
+
+        @BeforeEach
+        void setUp() {
+            store = Store.toEntity("Old Store", null, null, 10000, 1L, "OWNER");
+            updateRequest = new StoreUpdateRequestDto("Updated Store", "08:00", "12:00", 20000);
+        }
+
+        @Test
+        public void 수정_하려는_가게가_없다면_실패() {
+            // given
+            Long storeId = 1L;
+            Long userId = 1L;
+            String userRole = "OWNER";
+
+            // when & then
+            assertThatThrownBy(() -> storeService.updateStore(storeId, userId, userRole, updateRequest))
+                    .isInstanceOf(CustomException.class)
+                    .hasMessage("해당 가게는 존재하지 않습니다.");
+        }
+
+        @Test
+        public void 수정_하려는_사용자가_사장님이_아니면_실패() {
+            // given
+            Long storeId = 1L;
+            Long userId = 2L;
+            String userRole = "USER";
+            given(storeRepository.findById(storeId)).willReturn(Optional.of(store));
+
+            // when & then
+            assertThatThrownBy(() -> storeService.updateStore(storeId, userId, userRole, updateRequest))
+                    .isInstanceOf(CustomException.class)
+                    .hasMessage("가게 수정은 사장님만 가능합니다.");
+        }
+
+        @Test
+        public void 수정_하려는_사용자와_해당_가게의_사장님의_정보가_일치하지_않으면_실패() {
+            // given
+            Long storeId = 1L;
+            Long userId = 2L;
+            String userRole = "OWNER";
+            given(storeRepository.findById(storeId)).willReturn(Optional.of(store));
+
+            // when & then
+            assertThatThrownBy(() -> storeService.updateStore(storeId, userId, userRole, updateRequest))
+                    .isInstanceOf(CustomException.class)
+                    .hasMessage( "가게 수정은 가게의 사장님만 가능 합니다.");
+        }
+
+        @Test
+        public void 수정_성공() {
+            // given
+            Long storeId = 1L;
+            Long userId = 1L;
+            String userRole = "OWNER";
+
+            given(storeRepository.findById(storeId)).willReturn(Optional.of(store));
+
+            // when
+            StoreResponseDto response = storeService.updateStore(storeId, userId, userRole, updateRequest);
+
+            // then
+            assertThat(response).isNotNull();
+            assertThat(response.getName()).isEqualTo("Updated Store");
+            assertThat(response.getMinimumPrice()).isEqualTo(20000);
+            assertThat(response.getOpenAt()).isEqualTo(LocalTime.of(8, 0));
+        }
+    }
 }
