@@ -2,7 +2,9 @@ package com.example.spartadelivery.domain.store.service;
 
 import com.example.spartadelivery.common.exception.CustomException;
 import com.example.spartadelivery.config.LocalTimeConverter;
+import com.example.spartadelivery.domain.menu.dto.response.MenuResponseDto;
 import com.example.spartadelivery.domain.store.dto.request.StoreSaveRequestDto;
+import com.example.spartadelivery.domain.store.dto.response.StoreDetailResponseDto;
 import com.example.spartadelivery.domain.store.dto.response.StoreResponseDto;
 import com.example.spartadelivery.domain.store.dto.response.StoreSaveResponseDto;
 import com.example.spartadelivery.domain.store.entity.Store;
@@ -13,6 +15,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -43,12 +48,17 @@ public class StoreService {
     public Page<StoreResponseDto> getStores(String name, Integer page, Integer size) {
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Store> stores = storeRepository.findAllByNameContaining(name, pageable);
-
         return stores.map(StoreResponseDto::of);
+    }
+
+    public StoreDetailResponseDto getStore(Long id) {
+        Store findStore = storeRepository.findById(id).orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "해당 가게는 존재하지 않습니다."));
+        //TODO : 해당 가게에 맞는 메뉴 리스트 조회
+        List<MenuResponseDto> menuList = new ArrayList<>();
+        return StoreDetailResponseDto.of(findStore, menuList);
     }
 
     public boolean isOwner(String userRole) {
         return "OWNER".equals(userRole);
     }
-
 }

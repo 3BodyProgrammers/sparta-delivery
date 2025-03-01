@@ -1,6 +1,7 @@
 package com.example.spartadelivery.domain.store.controller;
 
 import com.example.spartadelivery.domain.store.dto.request.StoreSaveRequestDto;
+import com.example.spartadelivery.domain.store.dto.response.StoreDetailResponseDto;
 import com.example.spartadelivery.domain.store.dto.response.StoreResponseDto;
 import com.example.spartadelivery.domain.store.dto.response.StoreSaveResponseDto;
 import com.example.spartadelivery.domain.store.service.StoreService;
@@ -26,5 +27,10 @@ public class StoreController {
     @GetMapping("/stores")
     public ResponseEntity<Page<StoreResponseDto>> getStores(@RequestParam(required = false) String name, @RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer size) {
         return ResponseEntity.ok(storeService.getStores(name, page, size));
+    }
+
+    @GetMapping("/stores/{id}")
+    public ResponseEntity<StoreDetailResponseDto> getStore(@PathVariable Long id) {
+        return ResponseEntity.ok(storeService.getStore(id));
     }
 }

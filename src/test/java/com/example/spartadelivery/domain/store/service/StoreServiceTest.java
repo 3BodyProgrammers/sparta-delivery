@@ -2,6 +2,7 @@ package com.example.spartadelivery.domain.store.service;
 
 import com.example.spartadelivery.common.exception.CustomException;
 import com.example.spartadelivery.domain.store.dto.request.StoreSaveRequestDto;
+import com.example.spartadelivery.domain.store.dto.response.StoreDetailResponseDto;
 import com.example.spartadelivery.domain.store.dto.response.StoreResponseDto;
 import com.example.spartadelivery.domain.store.dto.response.StoreSaveResponseDto;
 import com.example.spartadelivery.domain.store.entity.Store;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -164,6 +166,33 @@ class StoreServiceTest {
             assertThat(result).isNotNull();
             assertThat(result.getContent()).hasSize(1);
             assertThat(result.getContent().get(0).getName()).isEqualTo("Store A");
+        }
+
+        @Test
+        public void 단건_조회_시_가게가_존재_하지_않는_다면_실패() {
+            // given
+            long storeId = 1L;
+            given(storeRepository.findById(anyLong())).willReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> storeService.getStore(storeId))
+                    .isInstanceOf(CustomException.class)
+                    .hasMessage("해당 가게는 존재하지 않습니다.");
+        }
+
+        @Test
+        public void 단건_조회_시_가게가_존재_하는_경우_성공() {
+            // given
+            long storeId = 1L;
+            Store store = Store.toEntity("Store A", null, null, 10000, 1L, "OWNER");
+            given(storeRepository.findById(anyLong())).willReturn(Optional.of(store));
+
+            // when
+            StoreDetailResponseDto findStore = storeService.getStore(storeId);
+
+            // then
+            assertThat(findStore).isNotNull();
+            assertThat(findStore.getName()).isEqualTo("Store A");
         }
     }
 
