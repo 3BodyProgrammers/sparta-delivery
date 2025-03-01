@@ -3,10 +3,14 @@ package com.example.spartadelivery.domain.store.service;
 import com.example.spartadelivery.common.exception.CustomException;
 import com.example.spartadelivery.config.LocalTimeConverter;
 import com.example.spartadelivery.domain.store.dto.request.StoreSaveRequestDto;
+import com.example.spartadelivery.domain.store.dto.response.StoreResponseDto;
 import com.example.spartadelivery.domain.store.dto.response.StoreSaveResponseDto;
 import com.example.spartadelivery.domain.store.entity.Store;
 import com.example.spartadelivery.domain.store.repository.StoreRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +40,15 @@ public class StoreService {
         return StoreSaveResponseDto.of(savedStore);
     }
 
+    public Page<StoreResponseDto> getStores(String name, Integer page, Integer size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Store> stores = storeRepository.findAllByNameContaining(name, pageable);
+
+        return stores.map(StoreResponseDto::of);
+    }
+
     public boolean isOwner(String userRole) {
         return "OWNER".equals(userRole);
     }
+
 }
