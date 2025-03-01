@@ -41,4 +41,11 @@ public class StoreController {
         StoreResponseDto response = storeService.updateStore(id, userId, userRole, request);
         return ResponseEntity.ok(response);
     }
+
+    //Todo : 이후 유저 구현시 AuthUser로 변환
+    @PostMapping("/stores/delete/{id}")
+    public ResponseEntity<String> deleteStore(@PathVariable Long id, Long userId, String userRole) {
+        String message = storeService.deleteStore(id, userId, userRole);
+        return ResponseEntity.ok(message);
+    }
 }

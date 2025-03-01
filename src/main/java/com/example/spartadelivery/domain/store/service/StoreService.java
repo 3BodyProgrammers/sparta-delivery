@@ -24,8 +24,10 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class StoreService {
-//TODO : User 구현 시 AuthUser 사용
-//TODO : 휴일 구현 시 휴일 적용
+/*TODO : User 구현 이후 AuthUser 사용
+TODO : 휴일 구현 이후 휴일 적용
+TODO : 메뉴 구현 이후 메뉴 적용
+ */
 
     private final StoreRepository storeRepository;
 
@@ -63,13 +65,13 @@ public class StoreService {
 
     @Transactional
     public StoreResponseDto updateStore(Long id, Long userId, String userRole, StoreUpdateRequestDto request) {
-        //TODO : 이후 유저 구현 시 사장님 정보도 같이 가져올 수 있도록 구현
-        Store findStore = storeRepository.findById(id).orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "해당 가게는 존재하지 않습니다."));
-
         //TODO : 이후 AOP에서 구현 가능할 듯?
         if (!isOwner(userRole)) {
             throw new CustomException(HttpStatus.FORBIDDEN, "가게 수정은 사장님만 가능합니다.");
         }
+
+        //TODO : 이후 유저 구현 시 사장님 정보도 같이 가져올 수 있도록 구현
+        Store findStore = storeRepository.findById(id).orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "해당 가게는 존재하지 않습니다."));
 
         if (!findStore.getUserId().equals(userId)) {
             throw new CustomException(HttpStatus.FORBIDDEN, "가게 수정은 가게의 사장님만 가능 합니다.");
@@ -78,6 +80,25 @@ public class StoreService {
         findStore.update(request);
 
         return StoreResponseDto.of(findStore);
+    }
+
+    public String deleteStore(Long id, Long userId, String userRole) {
+        //TODO : 이후 AOP에서 구현 가능할 듯?
+        if (!isOwner(userRole)) {
+            throw new CustomException(HttpStatus.FORBIDDEN, "가게 폐업은 사장님만 가능합니다.");
+        }
+
+        Store findStore = storeRepository.findById(id).orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "해당 가게는 존재하지 않습니다."));
+
+        if (!findStore.getUserId().equals(userId)) {
+            throw new CustomException(HttpStatus.FORBIDDEN, "가게 폐업은 가게의 사장님만 가능 합니다.");
+        }
+
+        findStore.delete();
+
+        //TODO : 이후 메뉴 구현 시 해당 가게의 메뉴도 삭제 되게 구현
+
+        return "폐업 되었습니다.";
     }
 
     public boolean isOwner(String userRole) {

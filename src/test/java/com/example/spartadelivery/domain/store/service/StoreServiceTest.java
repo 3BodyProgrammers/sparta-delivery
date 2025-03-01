@@ -64,7 +64,6 @@ class StoreServiceTest {
             // given
             Long userId = 1L;
             String userRole = "OWNER";
-
             given(storeRepository.countByUserId(anyLong())).willReturn(3);
 
             // when & then
@@ -78,7 +77,6 @@ class StoreServiceTest {
             // given
             Long userId = 1L;
             String userRole = "OWNER";
-
             given(storeRepository.existsByName(anyString())).willReturn(true);
 
             // when & then
@@ -94,7 +92,6 @@ class StoreServiceTest {
             Long userId = 1L;
             String userRole = "OWNER";
             Store store = Store.toEntity("Test Store", LocalTime.of(8, 0), LocalTime.of(22, 0), 10000, 1L, "OWNER");
-
             given(storeRepository.countByUserId(anyLong())).willReturn(0); // 가게 개수 제한 미달
             given(storeRepository.existsByName(anyString())).willReturn(false); // 중복 가게 없음
             given(storeRepository.save(any())).willReturn(store);
@@ -211,6 +208,19 @@ class StoreServiceTest {
         }
 
         @Test
+        public void 수정_하려는_사용자가_사장님이_아니면_실패() {
+            // given
+            Long storeId = 1L;
+            Long userId = 2L;
+            String userRole = "USER";
+
+            // when & then
+            assertThatThrownBy(() -> storeService.updateStore(storeId, userId, userRole, updateRequest))
+                    .isInstanceOf(CustomException.class)
+                    .hasMessage("가게 수정은 사장님만 가능합니다.");
+        }
+
+        @Test
         public void 수정_하려는_가게가_없다면_실패() {
             // given
             Long storeId = 1L;
@@ -221,20 +231,6 @@ class StoreServiceTest {
             assertThatThrownBy(() -> storeService.updateStore(storeId, userId, userRole, updateRequest))
                     .isInstanceOf(CustomException.class)
                     .hasMessage("해당 가게는 존재하지 않습니다.");
-        }
-
-        @Test
-        public void 수정_하려는_사용자가_사장님이_아니면_실패() {
-            // given
-            Long storeId = 1L;
-            Long userId = 2L;
-            String userRole = "USER";
-            given(storeRepository.findById(storeId)).willReturn(Optional.of(store));
-
-            // when & then
-            assertThatThrownBy(() -> storeService.updateStore(storeId, userId, userRole, updateRequest))
-                    .isInstanceOf(CustomException.class)
-                    .hasMessage("가게 수정은 사장님만 가능합니다.");
         }
 
         @Test
@@ -257,7 +253,6 @@ class StoreServiceTest {
             Long storeId = 1L;
             Long userId = 1L;
             String userRole = "OWNER";
-
             given(storeRepository.findById(storeId)).willReturn(Optional.of(store));
 
             // when
@@ -268,6 +263,73 @@ class StoreServiceTest {
             assertThat(response.getName()).isEqualTo("Updated Store");
             assertThat(response.getMinimumPrice()).isEqualTo(20000);
             assertThat(response.getOpenAt()).isEqualTo(LocalTime.of(8, 0));
+        }
+    }
+
+    @Nested
+    class storeDeleteTest {
+
+        private Store store;
+
+        @BeforeEach
+        void setUp() {
+            store = Store.toEntity("Store", null, null, 10000, 1L, "OWNER");
+        }
+
+        @Test
+        public void 폐업_요청한_사용자가_사장님이_아니라면_실패() {
+            // given
+            Long storeId = 1L;
+            Long userId = 1L;
+            String userRole = "USER";
+
+            // when & then
+            assertThatThrownBy(() -> storeService.deleteStore(storeId, userId, userRole))
+                    .isInstanceOf(CustomException.class)
+                    .hasMessage("가게 폐업은 사장님만 가능합니다.");
+        }
+
+        @Test
+        public void 폐업_하려는_가게가_없다면_실패() {
+            // given
+            Long storeId = 1L;
+            Long userId = 1L;
+            String userRole = "OWNER";
+            given(storeRepository.findById(storeId)).willReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> storeService.deleteStore(storeId, userId, userRole))
+                    .isInstanceOf(CustomException.class)
+                    .hasMessage("해당 가게는 존재하지 않습니다.");
+        }
+
+        @Test
+        public void 폐업_요청한_사용자가_해당_가게의_사장님과_일치하지_않을_경우_실패() {
+            // given
+            Long storeId = 1L;
+            Long userId = 2L;
+            String userRole = "OWNER";
+            given(storeRepository.findById(storeId)).willReturn(Optional.of(store));
+
+            // when & then
+            assertThatThrownBy(() -> storeService.deleteStore(storeId, userId, userRole))
+                    .isInstanceOf(CustomException.class)
+                    .hasMessage("가게 폐업은 가게의 사장님만 가능 합니다.");
+        }
+
+        @Test
+        public void 폐업_성공() {
+            // given
+            Long storeId = 1L;
+            Long userId = 1L;
+            String userRole = "OWNER";
+            given(storeRepository.findById(storeId)).willReturn(Optional.of(store));
+
+            // when
+            String message = storeService.deleteStore(storeId, userId, userRole);
+
+            // then
+            assertThat(message).isEqualTo("폐업 되었습니다.");
         }
     }
 }

@@ -57,4 +57,8 @@ public class Store extends BaseEntity {
         this.closeAt = LocalTimeConverter.toLocalTime(request.getCloseAt());
         this.minimumPrice = request.getMinimumPrice();
     }
+
+    public void delete() {
+        super.delete();
+    }
 }
