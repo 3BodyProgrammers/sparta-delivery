@@ -31,4 +31,8 @@ public class BaseEntity {
     public void delete(){
         this.deletedAt = LocalDateTime.now();
     }
+
+    protected void restore() {
+        this.deletedAt = null;
+    }
 }
