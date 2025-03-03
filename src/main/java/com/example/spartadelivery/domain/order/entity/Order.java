@@ -1,5 +1,6 @@
 package com.example.spartadelivery.domain.order.entity;
 
+import com.example.spartadelivery.domain.order.enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,7 +29,7 @@ public class Order extends BaseEntity {
     @Column(nullable = false)
     private int price;
 
-    @Column(nullable = false)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
 
 }
