@@ -2,6 +2,7 @@ package com.example.spartadelivery.domain.menu.controller;
 
 import com.example.spartadelivery.domain.menu.dto.request.MenuSaveRequestDto;
 import com.example.spartadelivery.domain.menu.dto.request.MenuUpdateRequestDto;
+import com.example.spartadelivery.domain.menu.dto.response.MenuDeleteResponseDto;
 import com.example.spartadelivery.domain.menu.dto.response.MenuSaveResponseDto;
 import com.example.spartadelivery.domain.menu.dto.response.MenuUpdateResponseDto;
 import com.example.spartadelivery.domain.menu.service.MenuService;
@@ -27,5 +28,12 @@ public class MenuController {
         MenuUpdateResponseDto response = menuService.updateMenu(id, storeId, userId, userRole, request);
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/stores/{storeId}/menus/{id}")
+    public ResponseEntity<MenuDeleteResponseDto> deleteMenu(@PathVariable Long storeId, @PathVariable Long id, Long userId, String userRole) {
+        MenuDeleteResponseDto response = menuService.deleteMenu(storeId, id, userId, userRole);
+        return ResponseEntity.ok(response);
+    }
+
 
 }
