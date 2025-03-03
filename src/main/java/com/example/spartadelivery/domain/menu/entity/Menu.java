@@ -2,6 +2,7 @@ package com.example.spartadelivery.domain.menu.entity;
 
 import com.example.spartadelivery.common.entity.BaseEntity;
 import com.example.spartadelivery.domain.menu.dto.request.MenuSaveRequestDto;
+import com.example.spartadelivery.domain.menu.dto.request.MenuUpdateRequestDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -38,5 +39,11 @@ public class Menu extends BaseEntity {
 
     public static Menu toEntity(MenuSaveRequestDto request, Long userId, String userRole, Long storeId) {
         return new Menu(request.getName(), request.getPrice(), userId, userRole, storeId);
+    }
+
+    public void update(MenuUpdateRequestDto request) {
+        this.name = request.getName();
+        this.price = request.getPrice();
+
     }
 }
