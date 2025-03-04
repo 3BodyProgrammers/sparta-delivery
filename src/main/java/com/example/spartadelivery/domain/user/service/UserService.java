@@ -7,7 +7,6 @@ import com.example.spartadelivery.domain.user.dto.request.UserUpdateRequestDto;
 import com.example.spartadelivery.domain.user.dto.response.UserResponseDto;
 import com.example.spartadelivery.domain.user.entity.User;
 import com.example.spartadelivery.domain.user.repository.UserRepository;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -26,7 +25,7 @@ public class UserService {
         return new UserResponseDto(user.getId(), user.getEmail(), user.getName(), user.getUserRole().toString(), user.getCreatedAt(), user.getModifiedAt());
     }
 
-    public UserResponseDto updateProfile(Long userId, @Valid UserUpdateRequestDto requestDto) {
+    public UserResponseDto updateProfile(Long userId, UserUpdateRequestDto requestDto) {
         User user =  userRepository.findByIdOrElseThrow(userId);
 
         if (passwordEncoder.matches(requestDto.getNewPassword(), user.getPassword())) {
