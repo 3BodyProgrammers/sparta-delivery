@@ -21,12 +21,12 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public UserResponseDto getUser(Long userId) {
-        User user =  userRepository.findByIdOrElseThrow(userId);
+        User user = userRepository.findByIdOrElseThrow(userId);
         return new UserResponseDto(user.getId(), user.getEmail(), user.getName(), user.getUserRole().toString(), user.getCreatedAt(), user.getModifiedAt());
     }
 
     public UserResponseDto updateProfile(Long userId, UserUpdateRequestDto requestDto) {
-        User user =  userRepository.findByIdOrElseThrow(userId);
+        User user = userRepository.findByIdOrElseThrow(userId);
 
         if (passwordEncoder.matches(requestDto.getNewPassword(), user.getPassword())) {
             throw new CustomException(HttpStatus.BAD_REQUEST, "새 비밀번호는 기존 비밀번호와 같을 수 없습니다.");
@@ -46,7 +46,7 @@ public class UserService {
 
     @Transactional
     public String deleteUser(Long userId, UserDeleteRequestDto requestDto) {
-        User user =  userRepository.findByIdOrElseThrow(userId);
+        User user = userRepository.findByIdOrElseThrow(userId);
 
         if (user.getDeletedAt() != null) {
             throw new CustomException(HttpStatus.BAD_REQUEST, "이미 탈퇴한 사용자입니다.");
