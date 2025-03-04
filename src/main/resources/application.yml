@@ -1,0 +1,26 @@
+server:
+  port: 8080  # 서버 포트 설정
+
+spring:
+  application:
+    name: sparta-delivery  # 애플리케이션 이름
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/sparta_delivery  # MySQL 데이터베이스 URL
+    username: your_username
+    password: your_password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update  # 스키마 자동 업데이트
+    show-sql: true  # 실행되는 SQL 로그 출력
+    properties:
+      hibernate:
+        format_sql: true  # SQL 포맷팅해서 보기 좋게 출력
+
+jwt:
+  secret: your-secret-key  # JWT 서명에 사용할 비밀 키
+  expiration: 3600000  # JWT 만료 시간 (밀리초 단위, 1시간)
+  issuer: sparta-delivery  # 발급자 정보
