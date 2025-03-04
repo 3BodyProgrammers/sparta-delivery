@@ -17,6 +17,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.util.ReflectionTestUtils;
 
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
@@ -41,7 +43,7 @@ class UserServiceTest {
         User user = new User(email, "Abcd1234!", "이름", UserRole.USER);
         ReflectionTestUtils.setField(user, "id", userId);
 
-        given(userRepository.findByIdOrElseThrow(anyLong())).willReturn(user);
+        given(userRepository.findById(anyLong())).willReturn(Optional.of(user));
 
         // when
         UserResponseDto userResponse = userService.getUser(userId);
@@ -56,7 +58,7 @@ class UserServiceTest {
     void 존재하지_않는_User를_조회_시_예외를_던진다() {
         // given
         long invalidUserId = 999L;
-        given(userRepository.findByIdOrElseThrow(anyLong())).willThrow(new CustomException(HttpStatus.BAD_REQUEST, "유저를 찾을 수 없습니다."));
+        given(userRepository.findById(anyLong())).willReturn(Optional.empty());
 
         // when & then
         CustomException exception = assertThrows(CustomException.class,
@@ -77,7 +79,7 @@ class UserServiceTest {
         ReflectionTestUtils.setField(user, "id", userId);
         UserUpdateRequestDto requestDto = new UserUpdateRequestDto(oldPassword, newPassword, newName);
 
-        given(userRepository.findByIdOrElseThrow(anyLong())).willReturn(user);
+        given(userRepository.findById(anyLong())).willReturn(Optional.of(user));
         given(passwordEncoder.matches(oldPassword, user.getPassword())).willReturn(true);
         given(passwordEncoder.matches(newPassword, user.getPassword())).willReturn(false);
         given(userRepository.save(any(User.class))).willReturn(user);
@@ -102,7 +104,7 @@ class UserServiceTest {
         User user = new User("aa@aa.com", oldPassword, "이름", UserRole.USER);
         UserUpdateRequestDto requestDto = new UserUpdateRequestDto(oldPassword, newPassword, "새이름");
 
-        given(userRepository.findByIdOrElseThrow(anyLong())).willReturn(user);
+        given(userRepository.findById(anyLong())).willReturn(Optional.of(user));
         given(passwordEncoder.matches(anyString(), anyString())).willReturn(true);
 
         // when & then
@@ -120,7 +122,7 @@ class UserServiceTest {
         User user = new User("aa@aa.com", oldPassword, "이름", UserRole.USER);
         UserUpdateRequestDto requestDto = new UserUpdateRequestDto(oldPassword, newPassword, "새이름");
 
-        given(userRepository.findByIdOrElseThrow(anyLong())).willReturn(user);
+        given(userRepository.findById(anyLong())).willReturn(Optional.of(user));
         given(passwordEncoder.matches(anyString(), anyString())).willReturn(false);
 
         // when & then
@@ -134,7 +136,7 @@ class UserServiceTest {
         long invalidUserId = 999L;
         UserUpdateRequestDto requestDto = new UserUpdateRequestDto("OldPassword12!", "NewPassword12!", "새이름");
 
-        given(userRepository.findByIdOrElseThrow(anyLong())).willThrow(new CustomException(HttpStatus.BAD_REQUEST, "유저를 찾을 수 없습니다."));
+        given(userRepository.findById(anyLong())).willReturn(Optional.empty());
 
         // when & then
         CustomException exception = assertThrows(CustomException.class, () -> userService.updateProfile(invalidUserId, requestDto));
@@ -151,7 +153,7 @@ class UserServiceTest {
         User user = new User("aa@aa.com", password, "이름", UserRole.USER);
         ReflectionTestUtils.setField(user, "id", userId);
 
-        given(userRepository.findByIdOrElseThrow(anyLong())).willReturn(user);
+        given(userRepository.findById(anyLong())).willReturn(Optional.of(user));
         given(passwordEncoder.matches(anyString(), anyString())).willReturn(true);
 
         // when
@@ -172,7 +174,7 @@ class UserServiceTest {
         ReflectionTestUtils.setField(user, "id", userId);
         user.delete();  // 탈퇴 상태로 변경
 
-        given(userRepository.findByIdOrElseThrow(anyLong())).willReturn(user);
+        given(userRepository.findById(anyLong())).willReturn(Optional.of(user));
 
         // when & then
         CustomException exception = assertThrows(CustomException.class, () -> userService.deleteUser(userId, requestDto));
@@ -189,7 +191,7 @@ class UserServiceTest {
         User user = new User("aa@aa.com", "password", "이름", UserRole.USER);
         ReflectionTestUtils.setField(user, "id", userId);
 
-        given(userRepository.findByIdOrElseThrow(anyLong())).willReturn(user);
+        given(userRepository.findById(anyLong())).willReturn(Optional.of(user));
         given(passwordEncoder.matches(anyString(), anyString())).willReturn(false);
 
         // when & then
