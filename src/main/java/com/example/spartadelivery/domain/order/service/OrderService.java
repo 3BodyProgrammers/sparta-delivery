@@ -9,6 +9,10 @@ import com.example.spartadelivery.domain.order.dto.response.OrderStatusUpdateRes
 import com.example.spartadelivery.domain.order.entity.Order;
 import com.example.spartadelivery.domain.order.enums.OrderStatus;
 import com.example.spartadelivery.domain.order.repository.OrderRepository;
+import com.example.spartadelivery.domain.store.entity.Store;
+import com.example.spartadelivery.domain.store.service.StoreService;
+import com.example.spartadelivery.domain.user.entity.User;
+import com.example.spartadelivery.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -48,13 +52,10 @@ public class OrderService {
 
         Menu menu = menuService.findMenuByStoreAndName(request.getStoreId(), request.getMenuName());
 
-        int totalPrice = menu.getPrice() * request.getQuantity();
-        if (totalPrice < store.getMinOrderPrice()) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, "최소 주문 금액을 충족하지 않습니다.");
-        }
-
         User user = userService.findUserById(userId);
+
         Order order = Order.toEntity(user, store, request.getMenuName(), request.getPrice(), OrderStatus.PENDING);
+
         Order savedOrder = orderRepository.save(order);
         return OrderSaveResponseDto.of(savedOrder);
     }

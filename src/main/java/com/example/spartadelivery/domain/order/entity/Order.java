@@ -1,6 +1,9 @@
 package com.example.spartadelivery.domain.order.entity;
 
+import com.example.spartadelivery.common.entity.BaseEntity;
 import com.example.spartadelivery.domain.order.enums.OrderStatus;
+import com.example.spartadelivery.domain.store.entity.Store;
+import com.example.spartadelivery.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
