@@ -1,6 +1,5 @@
 package com.example.spartadelivery.config;
 
-
 import jakarta.persistence.Converter;
 import java.time.LocalTime;
 import org.springframework.stereotype.Component;

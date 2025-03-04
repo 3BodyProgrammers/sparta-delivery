@@ -94,7 +94,7 @@ TODO : 메뉴 구현 이후 메뉴 적용
         return StoreResponseDto.of(findStore, holidays);
     }
 
-    public String deleteStore(Long id, Long userId, String userRole) {
+    public StoreDeleteResponseDto deleteStore(Long id, Long userId, String userRole) {
         //TODO : 이후 AOP에서 구현 가능할 듯?
         if (!isOwner(userRole)) {
             throw new CustomException(HttpStatus.FORBIDDEN, "가게 폐업은 사장님만 가능합니다.");
@@ -110,7 +110,7 @@ TODO : 메뉴 구현 이후 메뉴 적용
 
         //TODO : 이후 메뉴 구현 시 해당 가게의 메뉴도 삭제 되게 구현
 
-        return "폐업 되었습니다.";
+        return StoreDeleteResponseDto.of("폐업 되었습니다.");
     }
 
     public boolean isOwner(String userRole) {
