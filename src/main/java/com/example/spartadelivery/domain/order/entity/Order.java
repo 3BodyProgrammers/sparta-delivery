@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Entity
 @Table(name = "orders")
@@ -31,5 +33,19 @@ public class Order extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
+
+    public static Order toEntity(User user, Store store, String menuName, int price) {
+        Order order = new Order();
+        order.user = user;
+        order.store = store;
+        order.menuName = menuName;
+        order.price = price;
+        order.status = OrderStatus.PENDING;
+        return order;
+    }
+
+    public void updateStatus(OrderStatus newStatus) {
+        this.status = newStatus;
+    }
 
 }
