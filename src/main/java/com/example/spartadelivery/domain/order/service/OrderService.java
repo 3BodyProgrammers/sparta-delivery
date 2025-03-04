@@ -30,7 +30,7 @@ public class OrderService {
     private final MenuService menuService;
     private final UserService userService;
 
-
+    @Transactional // 튜터님 질문
     public OrderSaveResponseDto save(Long userId, String userRole, OrderSaveRequestDto request) {
         if(!isUser(userRole)) {
             throw new CustomException(HttpStatus.FORBIDDEN, "주문 요청은 고객만 가능합니다.");
