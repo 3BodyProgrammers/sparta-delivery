@@ -1,6 +1,8 @@
 package com.example.spartadelivery.domain.store.service;
 
 import com.example.spartadelivery.common.exception.CustomException;
+import com.example.spartadelivery.config.HolidayConverter;
+import com.example.spartadelivery.config.LocalTimeConverter;
 import com.example.spartadelivery.domain.store.dto.request.StoreSaveRequestDto;
 import com.example.spartadelivery.domain.store.dto.request.StoreUpdateRequestDto;
 import com.example.spartadelivery.domain.store.dto.response.StoreDetailResponseDto;
@@ -34,6 +36,12 @@ class StoreServiceTest {
 
     @Mock
     private StoreRepository storeRepository;
+
+    @Mock
+    private HolidayConverter holidayConverter;
+
+    @Mock
+    private LocalTimeConverter localTimeConverter;
 
     @InjectMocks
     private StoreService storeService;
