@@ -2,6 +2,7 @@ package com.example.spartadelivery.domain.holiday.dto.request;
 
 import com.example.spartadelivery.common.exception.CustomException;
 import com.example.spartadelivery.domain.holiday.enums.Holiday;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,12 +15,11 @@ import java.util.List;
 @AllArgsConstructor
 public class StoreHolidayRequestDto {
 
-    private List<Holiday> holidays;
+    private List<String> holidays;
 
-    //값이 유효한지 검사
     public void validate() {
-        for (Holiday holiday : holidays) {
-            if (holiday == null) {
+        for (String holiday : holidays) {
+            if (holiday == null || holiday.isBlank()) {
                 throw new CustomException(HttpStatus.BAD_REQUEST, "올바른 휴일 값을 입력해야 합니다.");
             }
         }
