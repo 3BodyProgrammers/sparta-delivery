@@ -17,11 +17,11 @@ public class StoreResponseDto {
     private final LocalTime openAt;
     private final LocalTime closeAt;
     private final Integer minimumPrice;
-    private final List<Holiday> holidays;
+    private final List<String> holidays;
     private final LocalDateTime createdAt;
     private final LocalDateTime modifiedAt;
 
-    private StoreResponseDto(Long id, String name, LocalTime openAt, LocalTime closeAt, Integer minimumPrice, List<Holiday> holidays, LocalDateTime createdAt, LocalDateTime modifiedAt) {
+    private StoreResponseDto(Long id, String name, LocalTime openAt, LocalTime closeAt, Integer minimumPrice, List<String> holidays, LocalDateTime createdAt, LocalDateTime modifiedAt) {
         this.id = id;
         this.name = name;
         this.openAt = openAt;
@@ -32,7 +32,7 @@ public class StoreResponseDto {
         this.modifiedAt = modifiedAt;
     }
 
-    public static StoreResponseDto of(Store store, List<Holiday> holidays) {
+    public static StoreResponseDto of(Store store, List<String> holidays) {
         return new StoreResponseDto(store.getId(), store.getName(), store.getOpenAt(), store.getCloseAt(), store.getMinimumPrice(), holidays, store.getCreatedAt(), store.getModifiedAt());
     }
 }

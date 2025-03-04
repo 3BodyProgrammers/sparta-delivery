@@ -1,6 +1,7 @@
 package com.example.spartadelivery.domain.store.dto.request;
 
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,7 +25,7 @@ public class StoreUpdateRequestDto {
     @DateTimeFormat
     private String closeAt;
 
-    @NotEmpty(message = "최소 주문 금액은 필수 값 입니다.")
+    @NotNull(message = "최소 주문 금액은 필수 값 입니다.")
     private Integer minimumPrice;
 
 }
