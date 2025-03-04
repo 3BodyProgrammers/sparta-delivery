@@ -16,6 +16,8 @@ import com.example.spartadelivery.domain.store.entity.Store;
 import com.example.spartadelivery.domain.store.repository.StoreRepository;
 import com.example.spartadelivery.domain.user.entity.User;
 import com.example.spartadelivery.domain.user.enums.UserRole;
+
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -118,5 +120,25 @@ TODO : 메뉴 구현 이후 메뉴 적용
 
         return StoreDeleteResponseDto.of("폐업 되었습니다.");
     }
+
+    //OrderService import
+    public Store findStoreById(Long storeId) {
+        return storeRepository.findById(storeId)
+                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "가게를 찾을 수 없습니다."));
+    }
+
+    public boolean isDeletedStore(Long storeId) {
+        Store store = findStoreById(storeId);
+        return store.getDeletedAt() != null;
+    }
+
+    public boolean isWithinBusinessHours(Store store, LocalDateTime now) {
+        return now.toLocalTime().isAfter(store.getOpenAt()) && now.toLocalTime().isBefore(store.getCloseAt());
+    } // 홀리데이 있으므로 시간만 비교
+
+    public List<Store> findStoresByOwnerId(Long ownerId) {
+        return storeRepository.findAllByUserId(ownerId);
+    }
+
 
 }

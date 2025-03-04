@@ -1,6 +1,7 @@
 package com.example.spartadelivery.domain.order.service;
 
 import com.example.spartadelivery.common.exception.CustomException;
+import com.example.spartadelivery.domain.holiday.service.StoreHolidayService;
 import com.example.spartadelivery.domain.order.dto.request.OrderStatusUpdateRequestDto;
 import com.example.spartadelivery.domain.order.dto.request.OrderSaveRequestDto;
 import com.example.spartadelivery.domain.order.dto.response.OrderResponseDto;
@@ -12,6 +13,7 @@ import com.example.spartadelivery.domain.order.repository.OrderRepository;
 import com.example.spartadelivery.domain.store.entity.Store;
 import com.example.spartadelivery.domain.store.service.StoreService;
 import com.example.spartadelivery.domain.user.entity.User;
+import com.example.spartadelivery.domain.user.enums.UserRole;
 import com.example.spartadelivery.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -32,13 +34,16 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final StoreService storeService;
     private final UserService userService;
+    private final StoreHolidayService storeHolidayService;
 
     // Todo : 메서드 추가 - isUser(userRole), isOwner(userRole), isHoliday(now)
     // Todo : validateStatusChange(newStatus);에서 기존 상태를 체크
 
     @Transactional // 튜터님 질문
     public OrderSaveResponseDto save(Long userId, String userRole, OrderSaveRequestDto request) {
-        if(!isUser(userRole)) {
+        UserRole role = UserRole.valueOf(userRole);
+
+        if(!userService.isUser(role)) {
             throw new CustomException(HttpStatus.FORBIDDEN, "주문 요청은 고객만 가능합니다.");
         }
 
@@ -48,13 +53,13 @@ public class OrderService {
         }
 
         LocalDateTime now = LocalDateTime.now();
-        if (isHoliday(now) || !storeService.isWithinBusinessHours(store, now)) {
+        if (storeHolidayService.isHoliday(store, now) || !storeService.isWithinBusinessHours(store, now)) {
             throw new CustomException(HttpStatus.BAD_REQUEST, "현재는 주문이 불가능한 시간입니다.");
         }
 
         User user = userService.findUserById(userId);
 
-        Order order = Order.toEntity(user, store, request.getMenuName(), request.getPrice(), OrderStatus.PENDING);
+        Order order = Order.toEntity(user, store, request.getMenuName(), request.getPrice());
 
         Order savedOrder = orderRepository.save(order);
         return OrderSaveResponseDto.of(savedOrder);
@@ -62,8 +67,9 @@ public class OrderService {
 
     @Transactional
     public OrderStatusUpdateResponseDto updateOrderStatus(Long orderId, String userRole, OrderStatusUpdateRequestDto request) {
+        UserRole role = UserRole.valueOf(userRole);
 
-        if (!isOwner(userRole)) {
+        if (!userService.isOwner(role)) {
             throw new CustomException(HttpStatus.FORBIDDEN, "주문 상태 변경은 사장님만 가능합니다.");
         }
 
@@ -75,7 +81,7 @@ public class OrderService {
 
         order.updateStatus(newStatus);
 
-        return new OrderStatusUpdateResponseDto(order);
+        return OrderStatusUpdateResponseDto.of(order);
     }
 
     private void validateStatusChange(OrderStatus currentStatus, OrderStatus newStatus) {
@@ -86,13 +92,16 @@ public class OrderService {
 
     @Transactional(readOnly = true)
     public Page<OrderResponseDto> getOrders(Long userId, String userRole, int page, int size) {
+
         Pageable pageable = PageRequest.of(page - 1, size);
 
-        if ("USER".equals(userRole)) {
+        UserRole role = UserRole.valueOf(userRole);
+
+        if (UserRole.USER.equals(role)) {
             return orderRepository.findByUserId(userId, pageable).map(OrderResponseDto::fromEntity);
         }
 
-        if ("OWNER".equals(userRole)) {
+        if (UserRole.OWNER.equals(role)) {
             List<Store> stores = storeService.findStoresByOwnerId(userId);
             List<Long> storeIds = stores.stream().map(Store::getId).collect(Collectors.toList());
             return orderRepository.findByStoreIdIn(storeIds, pageable).map(OrderResponseDto::fromEntity);
@@ -114,7 +123,7 @@ public class OrderService {
 
         if ("OWNER".equals(userRole)) {
             Store store = storeService.findStoreById(order.getStore().getId());
-            if (!store.getOwner().getId().equals(userId)) {
+            if (!store.getUser().getId().equals(userId)) {
                 throw new CustomException(HttpStatus.FORBIDDEN, "본인의 가게에 들어온 주문만 조회할 수 있습니다.");
             }
         }
@@ -142,7 +151,7 @@ public class OrderService {
 
         if ("OWNER".equals(userRole)) {
             Store store = storeService.findStoreById(order.getStore().getId());
-            if (!store.getOwner().getId().equals(userId)) {
+            if (!store.getUser().getId().equals(userId)) {
                 throw new CustomException(HttpStatus.FORBIDDEN, "본인의 가게 주문만 취소할 수 있습니다.");
             }
         }
@@ -151,15 +160,4 @@ public class OrderService {
         return OrderResponseDto.fromEntity(order);
     }
 
-    private boolean isUser(String userRole) {
-        return "USER".equals(userRole);
-    }
-
-    private boolean isOwner(String userRole) {
-        return "OWNER".equals(userRole);
-    }
-
-    private boolean isHoliday(LocalDateTime now) {
-        return false;
-    }
 }

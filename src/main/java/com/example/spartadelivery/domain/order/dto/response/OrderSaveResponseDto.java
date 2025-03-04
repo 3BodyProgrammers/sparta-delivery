@@ -1,5 +1,6 @@
 package com.example.spartadelivery.domain.order.dto.response;
 
+import com.example.spartadelivery.domain.order.entity.Order;
 import com.example.spartadelivery.domain.order.enums.OrderStatus;
 import lombok.Getter;
 
@@ -24,5 +25,17 @@ public class OrderSaveResponseDto {
         this.status = status;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
+    }
+
+    public static OrderSaveResponseDto of(Order order) {
+        return new OrderSaveResponseDto(
+                order.getId(),
+                order.getStore().getId(),
+                order.getMenuName(),
+                order.getPrice(),
+                order.getStatus(),
+                order.getCreatedAt(),
+                order.getModifiedAt()
+        );
     }
 }
