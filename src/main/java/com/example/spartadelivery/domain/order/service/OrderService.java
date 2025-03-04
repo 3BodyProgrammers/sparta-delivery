@@ -21,8 +21,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.awt.*;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,8 +31,10 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final StoreService storeService;
-    private final MenuService menuService;
     private final UserService userService;
+
+    // Todo : 메서드 추가 - isUser(userRole), isOwner(userRole), isHoliday(now)
+    // Todo : validateStatusChange(newStatus);에서 기존 상태를 체크
 
     @Transactional // 튜터님 질문
     public OrderSaveResponseDto save(Long userId, String userRole, OrderSaveRequestDto request) {
@@ -49,8 +51,6 @@ public class OrderService {
         if (isHoliday(now) || !storeService.isWithinBusinessHours(store, now)) {
             throw new CustomException(HttpStatus.BAD_REQUEST, "현재는 주문이 불가능한 시간입니다.");
         }
-
-        Menu menu = menuService.findMenuByStoreAndName(request.getStoreId(), request.getMenuName());
 
         User user = userService.findUserById(userId);
 
@@ -71,7 +71,7 @@ public class OrderService {
                 .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."));
 
         OrderStatus newStatus = request.getNewStatus();
-        validateStatusChange(newStatus);
+        validateStatusChange(order.getStatus(), newStatus);
 
         order.updateStatus(newStatus);
 
@@ -107,7 +107,7 @@ public class OrderService {
                 .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."));
 
         if ("USER".equals(userRole)) {
-            if (!order.getUser().getUserId().equals(userId)) {
+            if (!order.getUser().getId().equals(userId)) {
                 throw new CustomException(HttpStatus.FORBIDDEN, "본인이 주문한 내역만 조회할 수 있습니다.");
             }
         }
@@ -151,6 +151,15 @@ public class OrderService {
         return OrderResponseDto.fromEntity(order);
     }
 
+    private boolean isUser(String userRole) {
+        return "USER".equals(userRole);
+    }
 
+    private boolean isOwner(String userRole) {
+        return "OWNER".equals(userRole);
+    }
 
+    private boolean isHoliday(LocalDateTime now) {
+        return false;
+    }
 }
