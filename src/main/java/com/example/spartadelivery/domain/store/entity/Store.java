@@ -38,7 +38,8 @@ public class Store extends BaseEntity {
     private String userRole;
 
 
-    private Store(String name, LocalTime openAt, LocalTime closeAt, Integer minimumPrice, Long userId, String userRole) {
+    private Store(String name, LocalTime openAt, LocalTime closeAt, Integer minimumPrice, Long userId,
+                  String userRole) {
         this.name = name;
         this.openAt = openAt;
         this.closeAt = closeAt;
@@ -47,7 +48,8 @@ public class Store extends BaseEntity {
         this.userRole = userRole;
     }
 
-    public static Store toEntity(String name, LocalTime openAt, LocalTime closeAt, Integer minimumPrice, Long userId, String userRole) {
+    public static Store toEntity(String name, LocalTime openAt, LocalTime closeAt, Integer minimumPrice, Long userId,
+                                 String userRole) {
         return new Store(name, openAt, closeAt, minimumPrice, userId, userRole);
     }
 

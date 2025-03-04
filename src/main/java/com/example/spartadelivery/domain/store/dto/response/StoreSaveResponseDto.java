@@ -18,7 +18,8 @@ public class StoreSaveResponseDto {
     private final LocalDateTime createdAt;
     private final LocalDateTime modifiedAt;
 
-    private StoreSaveResponseDto(Long id, String name, LocalTime openAt, LocalTime closeAt, Integer minimumPrice, LocalDateTime createdAt, LocalDateTime modifiedAt) {
+    private StoreSaveResponseDto(Long id, String name, LocalTime openAt, LocalTime closeAt, Integer minimumPrice,
+                                 LocalDateTime createdAt, LocalDateTime modifiedAt) {
         this.id = id;
         this.name = name;
         this.openAt = openAt;
@@ -29,6 +30,7 @@ public class StoreSaveResponseDto {
     }
 
     public static StoreSaveResponseDto of(Store store) {
-        return new StoreSaveResponseDto(store.getId(), store.getName(), store.getOpenAt(), store.getCloseAt(), store.getMinimumPrice(), store.getCreatedAt(), store.getModifiedAt());
+        return new StoreSaveResponseDto(store.getId(), store.getName(), store.getOpenAt(), store.getCloseAt(),
+                store.getMinimumPrice(), store.getCreatedAt(), store.getModifiedAt());
     }
 }

@@ -2,6 +2,7 @@ package com.example.spartadelivery.domain.store.controller;
 
 import com.example.spartadelivery.domain.store.dto.request.StoreSaveRequestDto;
 import com.example.spartadelivery.domain.store.dto.request.StoreUpdateRequestDto;
+import com.example.spartadelivery.domain.store.dto.response.StoreDeleteResponseDto;
 import com.example.spartadelivery.domain.store.dto.response.StoreDetailResponseDto;
 import com.example.spartadelivery.domain.store.dto.response.StoreResponseDto;
 import com.example.spartadelivery.domain.store.dto.response.StoreSaveResponseDto;
@@ -19,33 +20,37 @@ public class StoreController {
     private final StoreService storeService;
 
     //Todo : 이후 유저 구현시 AuthUser로 변환
-    @PostMapping("/stores")
-    public ResponseEntity<StoreSaveResponseDto> saveStore(Long userId, String userRole, @RequestBody StoreSaveRequestDto request) {
+    @PostMapping
+    public ResponseEntity<StoreSaveResponseDto> saveStore(Long userId, String userRole,
+                                                          @RequestBody StoreSaveRequestDto request) {
         StoreSaveResponseDto response = storeService.saveStore(userId, userRole, request);
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/stores")
-    public ResponseEntity<Page<StoreResponseDto>> getStores(@RequestParam(required = false) String name, @RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer size) {
+    @GetMapping
+    public ResponseEntity<Page<StoreResponseDto>> getStores(@RequestParam(required = false) String name,
+                                                            @RequestParam(defaultValue = "1") Integer page,
+                                                            @RequestParam(defaultValue = "10") Integer size) {
         return ResponseEntity.ok(storeService.getStores(name, page, size));
     }
 
-    @GetMapping("/stores/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<StoreDetailResponseDto> getStore(@PathVariable Long id) {
         return ResponseEntity.ok(storeService.getStore(id));
     }
 
     //Todo : 이후 유저 구현시 AuthUser로 변환
-    @PutMapping("/stores/{id}")
-    public ResponseEntity<StoreResponseDto> updaeteStore(@PathVariable Long id, Long userId, String userRole, @RequestBody StoreUpdateRequestDto request) {
+    @PutMapping("/{id}")
+    public ResponseEntity<StoreResponseDto> updateStore(@PathVariable Long id, Long userId, String userRole,
+                                                        @RequestBody StoreUpdateRequestDto request) {
         StoreResponseDto response = storeService.updateStore(id, userId, userRole, request);
         return ResponseEntity.ok(response);
     }
 
     //Todo : 이후 유저 구현시 AuthUser로 변환
-    @PostMapping("/stores/delete/{id}")
-    public ResponseEntity<String> deleteStore(@PathVariable Long id, Long userId, String userRole) {
-        String message = storeService.deleteStore(id, userId, userRole);
-        return ResponseEntity.ok(message);
+    @PostMapping("/delete/{id}")
+    public ResponseEntity<StoreDeleteResponseDto> deleteStore(@PathVariable Long id, Long userId, String userRole) {
+        StoreDeleteResponseDto response = storeService.deleteStore(id, userId, userRole);
+        return ResponseEntity.ok(response);
     }
 }

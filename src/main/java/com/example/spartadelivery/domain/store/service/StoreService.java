@@ -5,6 +5,7 @@ import com.example.spartadelivery.config.LocalTimeConverter;
 import com.example.spartadelivery.domain.menu.dto.response.MenuResponseDto;
 import com.example.spartadelivery.domain.store.dto.request.StoreSaveRequestDto;
 import com.example.spartadelivery.domain.store.dto.request.StoreUpdateRequestDto;
+import com.example.spartadelivery.domain.store.dto.response.StoreDeleteResponseDto;
 import com.example.spartadelivery.domain.store.dto.response.StoreDetailResponseDto;
 import com.example.spartadelivery.domain.store.dto.response.StoreResponseDto;
 import com.example.spartadelivery.domain.store.dto.response.StoreSaveResponseDto;
@@ -45,7 +46,8 @@ TODO : 메뉴 구현 이후 메뉴 적용
             throw new CustomException(HttpStatus.BAD_REQUEST, "해당 가게 이름이 이미 존재 합니다.");
         }
 
-        Store store = Store.toEntity(request.getName(), LocalTimeConverter.toLocalTime(request.getOpenAt()), LocalTimeConverter.toLocalTime(request.getCloseAt()), request.getMinimumPrice(), userId, userRole);
+        Store store = Store.toEntity(request.getName(), LocalTimeConverter.toLocalTime(request.getOpenAt()),
+                LocalTimeConverter.toLocalTime(request.getCloseAt()), request.getMinimumPrice(), userId, userRole);
         Store savedStore = storeRepository.save(store);
         return StoreSaveResponseDto.of(savedStore);
     }
@@ -57,7 +59,8 @@ TODO : 메뉴 구현 이후 메뉴 적용
     }
 
     public StoreDetailResponseDto getStore(Long id) {
-        Store findStore = storeRepository.findById(id).orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "해당 가게는 존재하지 않습니다."));
+        Store findStore = storeRepository.findById(id)
+                .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "해당 가게는 존재하지 않습니다."));
         //TODO : 해당 가게에 맞는 메뉴 리스트 조회
         List<MenuResponseDto> menuList = new ArrayList<>();
         return StoreDetailResponseDto.of(findStore, menuList);
@@ -71,7 +74,8 @@ TODO : 메뉴 구현 이후 메뉴 적용
         }
 
         //TODO : 이후 유저 구현 시 사장님 정보도 같이 가져올 수 있도록 구현
-        Store findStore = storeRepository.findById(id).orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "해당 가게는 존재하지 않습니다."));
+        Store findStore = storeRepository.findById(id)
+                .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "해당 가게는 존재하지 않습니다."));
 
         if (!findStore.getUserId().equals(userId)) {
             throw new CustomException(HttpStatus.FORBIDDEN, "가게 수정은 가게의 사장님만 가능 합니다.");
@@ -82,13 +86,14 @@ TODO : 메뉴 구현 이후 메뉴 적용
         return StoreResponseDto.of(findStore);
     }
 
-    public String deleteStore(Long id, Long userId, String userRole) {
+    public StoreDeleteResponseDto deleteStore(Long id, Long userId, String userRole) {
         //TODO : 이후 AOP에서 구현 가능할 듯?
         if (!isOwner(userRole)) {
             throw new CustomException(HttpStatus.FORBIDDEN, "가게 폐업은 사장님만 가능합니다.");
         }
 
-        Store findStore = storeRepository.findById(id).orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "해당 가게는 존재하지 않습니다."));
+        Store findStore = storeRepository.findById(id)
+                .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "해당 가게는 존재하지 않습니다."));
 
         if (!findStore.getUserId().equals(userId)) {
             throw new CustomException(HttpStatus.FORBIDDEN, "가게 폐업은 가게의 사장님만 가능 합니다.");
@@ -98,7 +103,7 @@ TODO : 메뉴 구현 이후 메뉴 적용
 
         //TODO : 이후 메뉴 구현 시 해당 가게의 메뉴도 삭제 되게 구현
 
-        return "폐업 되었습니다.";
+        return StoreDeleteResponseDto.of("폐업 되었습니다.");
     }
 
     public boolean isOwner(String userRole) {

@@ -22,7 +22,8 @@ public class StoreDetailResponseDto {
     private final LocalDateTime createdAt;
     private final LocalDateTime modifiedAt;
 
-    private StoreDetailResponseDto(Long id, String name, LocalTime openAt, LocalTime closeAt, Integer minimumPrice, List<MenuResponseDto> menuList, LocalDateTime createdAt, LocalDateTime modifiedAt) {
+    private StoreDetailResponseDto(Long id, String name, LocalTime openAt, LocalTime closeAt, Integer minimumPrice,
+                                   List<MenuResponseDto> menuList, LocalDateTime createdAt, LocalDateTime modifiedAt) {
         this.id = id;
         this.name = name;
         this.openAt = openAt;
@@ -34,6 +35,7 @@ public class StoreDetailResponseDto {
     }
 
     public static StoreDetailResponseDto of(Store store, List<MenuResponseDto> menuList) {
-        return new StoreDetailResponseDto(store.getId(), store.getName(), store.getOpenAt(), store.getCloseAt(), store.getMinimumPrice(), menuList, store.getCreatedAt(), store.getModifiedAt());
+        return new StoreDetailResponseDto(store.getId(), store.getName(), store.getOpenAt(), store.getCloseAt(),
+                store.getMinimumPrice(), menuList, store.getCreatedAt(), store.getModifiedAt());
     }
 }
