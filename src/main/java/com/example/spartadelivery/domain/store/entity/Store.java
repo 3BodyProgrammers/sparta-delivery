@@ -31,6 +31,9 @@ public class Store extends BaseEntity {
     @Column(nullable = false)
     private Integer minimumPrice;
 
+    @Column(nullable = false)
+    private Integer holiday;
+
     //TODO : 나중에 유저 구현 이후 유저로 업데이트
     @Column(nullable = false)
     private Long userId;
@@ -38,8 +41,7 @@ public class Store extends BaseEntity {
     private String userRole;
 
 
-    private Store(String name, LocalTime openAt, LocalTime closeAt, Integer minimumPrice, Long userId,
-                  String userRole) {
+    private Store(String name, LocalTime openAt, LocalTime closeAt, Integer minimumPrice, Integer holiday, Long userId, String userRole) {
         this.name = name;
         this.openAt = openAt;
         this.closeAt = closeAt;
@@ -48,9 +50,8 @@ public class Store extends BaseEntity {
         this.userRole = userRole;
     }
 
-    public static Store toEntity(String name, LocalTime openAt, LocalTime closeAt, Integer minimumPrice, Long userId,
-                                 String userRole) {
-        return new Store(name, openAt, closeAt, minimumPrice, userId, userRole);
+    public static Store toEntity(String name, LocalTime openAt, LocalTime closeAt, Integer minimumPrice, Long userId, String userRole) {
+        return new Store(name, openAt, closeAt, minimumPrice, 0, userId, userRole);
     }
 
     public void update(StoreUpdateRequestDto request) {
@@ -62,5 +63,9 @@ public class Store extends BaseEntity {
 
     public void delete() {
         super.delete();
+    }
+
+    public void updateHolidays(Integer holiday) {
+        this.holiday = holiday;
     }
 }
