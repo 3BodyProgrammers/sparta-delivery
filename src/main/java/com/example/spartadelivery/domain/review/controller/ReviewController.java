@@ -37,7 +37,7 @@ public class ReviewController {
     }
 
 
-    @GetMapping("/stores/{storeId}/reivews")
+    @GetMapping("/stores/{storeId}/reviews")
     public ResponseEntity<ReviewPageResponseDto> getReviews(
             @PathVariable Long storeId,
             @RequestParam(defaultValue = "1") int page,
