@@ -3,7 +3,9 @@ package com.example.spartadelivery.domain.review.service;
 import com.example.spartadelivery.common.annotation.Auth;
 import com.example.spartadelivery.common.dto.AuthUser;
 import com.example.spartadelivery.common.exception.CustomException;
+import com.example.spartadelivery.domain.order.entity.Order;
 import com.example.spartadelivery.domain.order.enums.OrderStatus;
+import com.example.spartadelivery.domain.order.service.OrderService;
 import com.example.spartadelivery.domain.review.dto.request.ReviewRequestDto;
 import com.example.spartadelivery.domain.review.dto.response.ReviewPageResponseDto;
 import com.example.spartadelivery.domain.review.dto.response.ReviewResponseDto;
@@ -12,11 +14,11 @@ import com.example.spartadelivery.domain.review.repository.ReviewRepository;
 import com.example.spartadelivery.domain.store.entity.Store;
 import com.example.spartadelivery.domain.store.service.StoreService;
 import com.example.spartadelivery.domain.user.entity.User;
-import com.example.spartadelivery.domain.order.entity.Order;
-import com.example.spartadelivery.domain.user.enums.UserRole;
-import com.example.spartadelivery.domain.order.service.OrderService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +33,7 @@ public class ReviewService {
 
     @Transactional
     public ReviewResponseDto saveReview(@Auth AuthUser authUser, Long orderId, ReviewRequestDto requestDto) {
-        User user = checkUser(authUser);
+        User user = User.fromAuthUser(authUser);
 
         if (reviewRepository.existsByOrderId(orderId)) {
             throw new CustomException(HttpStatus.BAD_REQUEST, "이미 작성된 리뷰가 있거나 삭제된 주문입니다. 리뷰를 다시 작성할 수 없습니다.");
@@ -74,7 +76,7 @@ public class ReviewService {
     }
 
     public ReviewResponseDto updateReview(AuthUser authUser, Long id, ReviewRequestDto requestDto) {
-        User user = checkUser(authUser);
+        User user = User.fromAuthUser(authUser);
 
         Review review = findReviewById(id);
 
@@ -94,7 +96,7 @@ public class ReviewService {
 
     @Transactional
     public String deleteReview(AuthUser authUser, Long id) {
-        User user = checkUser(authUser);
+        User user = User.fromAuthUser(authUser);
 
         Review review = findReviewById(id);
 
@@ -111,24 +113,9 @@ public class ReviewService {
         return "리뷰 삭제가 완료되었습니다.";
     }
 
-    // 유저의 리뷰 작성/수정/삭제 권한 확인
-    public User checkUser(AuthUser authUser) {
-        User user = User.fromAuthUser(authUser);
-
-        if (isOwner(user)) {
-            throw new CustomException(HttpStatus.UNAUTHORIZED, "접근 권한이 없습니다.");
-        }
-
-        return user;
-    }
-
     // 배달 완료된 주문인지 확인
     public boolean isCompleted(OrderStatus status) {
         return status == OrderStatus.COMPLETED;
-    }
-
-    public boolean isOwner(User user) {
-        return user.getUserRole() == UserRole.OWNER;
     }
 
     public Review findReviewById(Long reviewId) {

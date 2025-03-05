@@ -1,5 +1,13 @@
 package com.example.spartadelivery.domain.review.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+
 import com.example.spartadelivery.common.dto.AuthUser;
 import com.example.spartadelivery.common.exception.CustomException;
 import com.example.spartadelivery.domain.order.entity.Order;
@@ -14,6 +22,10 @@ import com.example.spartadelivery.domain.store.entity.Store;
 import com.example.spartadelivery.domain.store.service.StoreService;
 import com.example.spartadelivery.domain.user.entity.User;
 import com.example.spartadelivery.domain.user.enums.UserRole;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -21,19 +33,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.util.ReflectionTestUtils;
-
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 
 @ExtendWith(MockitoExtension.class)
 class ReviewServiceTest {
@@ -88,17 +93,6 @@ class ReviewServiceTest {
             assertEquals(requestDto.getComments(), response.getComments());
         }
 
-        @Test
-        void 일반_유저가_아닌_경우_예외를_던진다() {
-            // given
-            long orderId = 1L;
-            AuthUser authUser = new AuthUser(1L, "aa@aa.com", "name", UserRole.OWNER);
-
-            // when & then
-            CustomException exception = assertThrows(CustomException.class,
-                    () -> reviewService.saveReview(authUser, orderId, requestDto));
-            assertEquals("접근 권한이 없습니다.", exception.getMessage());
-        }
 
         @Test
         void 이미_리뷰가_존재하거나_삭제되었으면_예외를_던진다() {
@@ -247,18 +241,6 @@ class ReviewServiceTest {
         }
 
         @Test
-        void 일반_유저가_아닌_경우_예외를_던진다() {
-            // given
-            long orderId = 1L;
-            AuthUser authUser = new AuthUser(1L, "aa@aa.com", "name", UserRole.OWNER);
-
-            // when & then
-            CustomException exception = assertThrows(CustomException.class,
-                    () -> reviewService.updateReview(authUser, orderId, requestDto));
-            assertEquals("접근 권한이 없습니다.", exception.getMessage());
-        }
-
-        @Test
         void 리뷰를_찾을_수_없으면_예외를_던진다() {
             // given
             long reviewId = 1L;
@@ -364,18 +346,6 @@ class ReviewServiceTest {
             assertNotNull(response);
             assertEquals("리뷰 삭제가 완료되었습니다.", response);
             assertNotNull(review.getDeletedAt());
-        }
-
-        @Test
-        void 일반_유저가_아닌_경우_예외를_던진다() {
-            // given
-            long orderId = 1L;
-            AuthUser authUser = new AuthUser(1L, "aa@aa.com", "name", UserRole.OWNER);
-
-            // when & then
-            CustomException exception = assertThrows(CustomException.class,
-                    () -> reviewService.deleteReview(authUser, orderId));
-            assertEquals("접근 권한이 없습니다.", exception.getMessage());
         }
 
         @Test
