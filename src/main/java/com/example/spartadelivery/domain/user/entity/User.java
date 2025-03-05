@@ -1,5 +1,6 @@
 package com.example.spartadelivery.domain.user.entity;
 
+import com.example.spartadelivery.common.dto.AuthUser;
 import com.example.spartadelivery.common.entity.BaseEntity;
 import com.example.spartadelivery.domain.user.enums.UserRole;
 import jakarta.persistence.*;
@@ -34,6 +35,17 @@ public class User extends BaseEntity {
         this.password = password;
         this.name = name;
         this.userRole = userRole;
+    }
+
+    private User(Long id, String email, String name, UserRole userRole) {
+        this.id = id;
+        this.email = email;
+        this.name = name;
+        this.userRole = userRole;
+    }
+
+    public static User fromAuthUser(AuthUser authUser) {
+        return new User(authUser.getId(), authUser.getEmail(), authUser.getName(), authUser.getUserRole());
     }
 
     public void changePassword(String password) {
