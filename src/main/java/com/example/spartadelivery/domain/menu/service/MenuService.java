@@ -1,6 +1,5 @@
 package com.example.spartadelivery.domain.menu.service;
 
-import com.example.spartadelivery.common.annotation.Auth;
 import com.example.spartadelivery.common.dto.AuthUser;
 import com.example.spartadelivery.common.exception.CustomException;
 import com.example.spartadelivery.domain.menu.dto.request.MenuSaveRequestDto;
