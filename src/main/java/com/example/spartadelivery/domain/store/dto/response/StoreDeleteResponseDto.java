@@ -1,8 +1,5 @@
 package com.example.spartadelivery.domain.store.dto.response;
 
-import com.example.spartadelivery.domain.store.entity.Store;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import lombok.Getter;
 
 @Getter
