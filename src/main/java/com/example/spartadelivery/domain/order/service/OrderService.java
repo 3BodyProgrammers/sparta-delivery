@@ -25,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -101,13 +100,13 @@ public class OrderService {
             return orderRepository.findByUserId(userId, pageable).map(OrderResponseDto::fromEntity);
         }
 
-        if (UserRole.OWNER.equals(role)) {
-            List<Store> stores = storeService.findStoresByOwnerId(userId);
-            List<Long> storeIds = stores.stream().map(Store::getId).collect(Collectors.toList());
-            return orderRepository.findByStoreIdIn(storeIds, pageable).map(OrderResponseDto::fromEntity);
-        } else {
-            throw new CustomException(HttpStatus.FORBIDDEN, "조회 권한이 없습니다.");
-        }
+        //Role=Owner
+        List<Long> storeIds = storeService.findStoresByOwnerId(userId)
+                                            .stream()
+                                            .map(Store::getId)
+                                            .toList();
+        return orderRepository.findByStoreIdIn(storeIds, pageable).map(OrderResponseDto::fromEntity);
+
     }
 
     @Transactional(readOnly = true)
@@ -115,17 +114,14 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."));
 
-        if ("USER".equals(userRole)) {
-            if (!order.getUser().getId().equals(userId)) {
-                throw new CustomException(HttpStatus.FORBIDDEN, "본인이 주문한 내역만 조회할 수 있습니다.");
-            }
+        UserRole role = UserRole.valueOf(userRole);
+
+        if (UserRole.USER.equals(role) && !order.getUser().getId().equals(userId)) {
+            throw new CustomException(HttpStatus.FORBIDDEN, "본인이 주문한 내역만 조회할 수 있습니다.");
         }
 
-        if ("OWNER".equals(userRole)) {
-            Store store = storeService.findStoreById(order.getStore().getId());
-            if (!store.getUser().getId().equals(userId)) {
-                throw new CustomException(HttpStatus.FORBIDDEN, "본인의 가게에 들어온 주문만 조회할 수 있습니다.");
-            }
+        if (UserRole.OWNER.equals(role) && !storeService.findStoreById(order.getStore().getId()).getUser().getId().equals(userId)) {
+            throw new CustomException(HttpStatus.FORBIDDEN, "본인의 가게에 들어온 주문만 조회할 수 있습니다.");
         }
 
         return OrderResponseDto.fromEntity(order);
@@ -140,7 +136,9 @@ public class OrderService {
             throw new CustomException(HttpStatus.BAD_REQUEST, "배달 중이거나 완료된 주문은 취소할 수 없습니다.");
         }
 
-        if ("USER".equals(userRole)) {
+        UserRole role = UserRole.valueOf(userRole);
+
+        if (UserRole.USER.equals(role)) {
             if (!order.getUser().getId().equals(userId)) {
                 throw new CustomException(HttpStatus.FORBIDDEN, "본인의 주문만 취소할 수 있습니다.");
             }
@@ -149,11 +147,8 @@ public class OrderService {
             }
         }
 
-        if ("OWNER".equals(userRole)) {
-            Store store = storeService.findStoreById(order.getStore().getId());
-            if (!store.getUser().getId().equals(userId)) {
-                throw new CustomException(HttpStatus.FORBIDDEN, "본인의 가게 주문만 취소할 수 있습니다.");
-            }
+        if (UserRole.OWNER.equals(role) && !storeService.findStoreById(order.getStore().getId()).getUser().getId().equals(userId)) {
+            throw new CustomException(HttpStatus.FORBIDDEN, "본인의 가게 주문만 취소할 수 있습니다.");
         }
 
         order.updateStatus(OrderStatus.CANCELED);

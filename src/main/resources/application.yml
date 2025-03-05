@@ -6,9 +6,9 @@ spring:
     name: sparta-delivery  # 애플리케이션 이름
 
   datasource:
-    url: jdbc:mysql://localhost:3306/sparta_delivery  # MySQL 데이터베이스 URL
-    username: your_username
-    password: your_password
+    url: jdbc:mysql://localhost:3306/sparta-delivery  # MySQL 데이터베이스 URL
+    username: root
+    password: 1111
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -21,6 +21,7 @@ spring:
         format_sql: true  # SQL 포맷팅해서 보기 좋게 출력
 
 jwt:
-  secret: your-secret-key  # JWT 서명에 사용할 비밀 키
+  secret:
+    key: "F+OpK3sY7+vNf8WQH2n2JYv8P1z2oU6F1N5dQn+JXZI="
   expiration: 3600000  # JWT 만료 시간 (밀리초 단위, 1시간)
   issuer: sparta-delivery  # 발급자 정보
