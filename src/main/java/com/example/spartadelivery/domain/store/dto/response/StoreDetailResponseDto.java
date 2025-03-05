@@ -1,6 +1,6 @@
 package com.example.spartadelivery.domain.store.dto.response;
 
-import com.example.spartadelivery.domain.menu.dto.response.MenuResponseDto;
+import com.example.spartadelivery.domain.menu.dto.response.MenuForStoreResponseDto;
 import com.example.spartadelivery.domain.store.entity.Store;
 import lombok.Getter;
 
@@ -18,24 +18,26 @@ public class StoreDetailResponseDto {
     private final LocalTime openAt;
     private final LocalTime closeAt;
     private final Integer minimumPrice;
-    private final List<MenuResponseDto> menuList;
+    private final List<String> holidays;
+    private final List<MenuForStoreResponseDto> menuList;
     private final LocalDateTime createdAt;
     private final LocalDateTime modifiedAt;
 
-    private StoreDetailResponseDto(Long id, String name, LocalTime openAt, LocalTime closeAt, Integer minimumPrice,
-                                   List<MenuResponseDto> menuList, LocalDateTime createdAt, LocalDateTime modifiedAt) {
+    private StoreDetailResponseDto(Long id, String name, LocalTime openAt, LocalTime closeAt, Integer minimumPrice, List<String> holidays,
+                                   List<MenuForStoreResponseDto> menuList, LocalDateTime createdAt, LocalDateTime modifiedAt) {
         this.id = id;
         this.name = name;
         this.openAt = openAt;
         this.closeAt = closeAt;
         this.minimumPrice = minimumPrice;
+        this.holidays = holidays;
         this.menuList = menuList;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
     }
 
-    public static StoreDetailResponseDto of(Store store, List<MenuResponseDto> menuList) {
+    public static StoreDetailResponseDto of(Store store, List<String> holidays, List<MenuForStoreResponseDto> menuList) {
         return new StoreDetailResponseDto(store.getId(), store.getName(), store.getOpenAt(), store.getCloseAt(),
-                store.getMinimumPrice(), menuList, store.getCreatedAt(), store.getModifiedAt());
+                store.getMinimumPrice(), holidays, menuList, store.getCreatedAt(), store.getModifiedAt());
     }
 }

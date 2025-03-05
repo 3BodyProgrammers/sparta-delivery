@@ -18,6 +18,9 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
 
     boolean existsByName(String name);
 
+    @EntityGraph(
+            attributePaths = {"user"}
+    )
     Optional<Store> findByIdAndDeletedAtIsNull(Long id);
 
     Page<Store> findAllByDeletedAtIsNull(Pageable pageable);
