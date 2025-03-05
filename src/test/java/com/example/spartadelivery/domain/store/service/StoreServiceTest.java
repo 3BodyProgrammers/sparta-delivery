@@ -5,6 +5,9 @@ import com.example.spartadelivery.common.dto.AuthUser;
 import com.example.spartadelivery.common.exception.CustomException;
 import com.example.spartadelivery.config.HolidayConverter;
 import com.example.spartadelivery.config.LocalTimeConverter;
+import com.example.spartadelivery.domain.menu.dto.request.MenuSaveRequestDto;
+import com.example.spartadelivery.domain.menu.entity.Menu;
+import com.example.spartadelivery.domain.menu.service.MenuGetService;
 import com.example.spartadelivery.domain.store.dto.request.StoreSaveRequestDto;
 import com.example.spartadelivery.domain.store.dto.request.StoreUpdateRequestDto;
 import com.example.spartadelivery.domain.store.dto.response.StoreDeleteResponseDto;
@@ -51,6 +54,9 @@ class StoreServiceTest {
 
     @Mock
     private LocalTimeConverter localTimeConverter;
+
+    @Mock
+    private MenuGetService menuGetService;
 
     @InjectMocks
     private StoreService storeService;
@@ -174,7 +180,7 @@ class StoreServiceTest {
     }
 
     @Nested
-    class storeGetTest{
+    class storeGetTest {
 
         @Test
         public void 단건_조회_시_가게가_존재_하지_않는_다면_실패() {
@@ -194,15 +200,16 @@ class StoreServiceTest {
             AuthUser authUser = new AuthUser(1L, "aa@aa.com", "name", UserRole.OWNER);
             User user = User.fromAuthUser(authUser);
             long storeId = 1L;
-            Store store = Store.toEntity("Store A", null, null, 10000, user);
+            Store store = Store.toEntity("Store", LocalTime.of(8, 0), LocalTime.of(22, 0), 10000, user);
+            List<Menu> menuList = List.of(Menu.toEntity(new MenuSaveRequestDto("menu1", 10000), user, store),Menu.toEntity(new MenuSaveRequestDto("menu2", 12000), user, store),Menu.toEntity(new MenuSaveRequestDto("menu3", 14000), user, store));
             given(storeRepository.findByIdAndDeletedAtIsNull(anyLong())).willReturn(Optional.of(store));
-
+            given(menuGetService.findAllByStoreIdAndDeletedAtIsNull(anyLong())).willReturn(menuList);
             // when
             StoreDetailResponseDto findStore = storeService.getStore(storeId);
 
             // then
             assertThat(findStore).isNotNull();
-            assertThat(findStore.getName()).isEqualTo("Store A");
+            assertThat(findStore.getName()).isEqualTo("Store");
         }
     }
 
@@ -239,7 +246,8 @@ class StoreServiceTest {
             // given
             Long storeId = 1L;
             AuthUser authUser2 = new AuthUser(2L, "bb@bb.com", "name2", UserRole.OWNER);
-            given(storeRepository.findByIdAndUserIdAndDeletedAtIsNull(anyLong(), anyLong())).willReturn(Optional.of(store));
+            given(storeRepository.findByIdAndUserIdAndDeletedAtIsNull(anyLong(), anyLong())).willReturn(
+                    Optional.of(store));
 
             // when & then
             assertThatThrownBy(() -> storeService.updateStore(storeId, authUser2, updateRequest))
@@ -296,7 +304,8 @@ class StoreServiceTest {
         public void 폐업_하려는_가게가_없다면_실패() {
             // given
             Long storeId = 1L;
-            given(storeRepository.findByIdAndUserIdAndDeletedAtIsNull(anyLong(), anyLong())).willReturn(Optional.empty());
+            given(storeRepository.findByIdAndUserIdAndDeletedAtIsNull(anyLong(), anyLong())).willReturn(
+                    Optional.empty());
 
             // when & then
             assertThatThrownBy(() -> storeService.deleteStore(storeId, authUser))
@@ -309,7 +318,8 @@ class StoreServiceTest {
             // given
             Long storeId = 1L;
             AuthUser authUser2 = new AuthUser(2L, "bb@bb.com", "name2", UserRole.OWNER);
-            given(storeRepository.findByIdAndUserIdAndDeletedAtIsNull(anyLong(), anyLong())).willReturn(Optional.of(store));
+            given(storeRepository.findByIdAndUserIdAndDeletedAtIsNull(anyLong(), anyLong())).willReturn(
+                    Optional.of(store));
 
             // when & then
             assertThatThrownBy(() -> storeService.deleteStore(storeId, authUser2))
@@ -321,7 +331,10 @@ class StoreServiceTest {
         public void 폐업_성공() {
             // given
             Long storeId = 1L;
-            given(storeRepository.findByIdAndUserIdAndDeletedAtIsNull(anyLong(), anyLong())).willReturn(Optional.of(store));
+            List<Menu> menuList = List.of(Menu.toEntity(new MenuSaveRequestDto("menu1", 10000), user, store),Menu.toEntity(new MenuSaveRequestDto("menu2", 12000), user, store),Menu.toEntity(new MenuSaveRequestDto("menu3", 14000), user, store));
+            given(storeRepository.findByIdAndUserIdAndDeletedAtIsNull(anyLong(), anyLong())).willReturn(
+                    Optional.of(store));
+            given(menuGetService.findAllByStoreIdAndDeletedAtIsNull(anyLong())).willReturn(menuList);
 
             // when
             StoreDeleteResponseDto response = storeService.deleteStore(storeId, authUser);

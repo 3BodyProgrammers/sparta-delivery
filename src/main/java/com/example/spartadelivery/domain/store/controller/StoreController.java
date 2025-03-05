@@ -31,7 +31,6 @@ public class StoreController {
         return ResponseEntity.ok(response);
     }
 
-    @Owner
     @GetMapping
     public ResponseEntity<Page<StoreResponseDto>> getStores(@RequestParam(required = false) String name,
                                                             @RequestParam(defaultValue = "1") Integer page,
@@ -39,7 +38,6 @@ public class StoreController {
         return ResponseEntity.ok(storeService.getStores(name, page, size));
     }
 
-    @Owner
     @GetMapping("/{id}")
     public ResponseEntity<StoreDetailResponseDto> getStore(@PathVariable Long id) {
         return ResponseEntity.ok(storeService.getStore(id));
