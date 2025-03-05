@@ -4,8 +4,9 @@ import com.example.spartadelivery.common.dto.AuthUser;
 import com.example.spartadelivery.common.exception.CustomException;
 import com.example.spartadelivery.config.HolidayConverter;
 import com.example.spartadelivery.config.LocalTimeConverter;
-import com.example.spartadelivery.domain.holiday.enums.Holiday;
-import com.example.spartadelivery.domain.menu.dto.response.MenuResponseDto;
+import com.example.spartadelivery.domain.menu.dto.response.MenuForStoreResponseDto;
+import com.example.spartadelivery.domain.menu.entity.Menu;
+import com.example.spartadelivery.domain.menu.service.MenuGetService;
 import com.example.spartadelivery.domain.store.dto.request.StoreSaveRequestDto;
 import com.example.spartadelivery.domain.store.dto.request.StoreUpdateRequestDto;
 import com.example.spartadelivery.domain.store.dto.response.StoreDeleteResponseDto;
@@ -15,7 +16,6 @@ import com.example.spartadelivery.domain.store.dto.response.StoreSaveResponseDto
 import com.example.spartadelivery.domain.store.entity.Store;
 import com.example.spartadelivery.domain.store.repository.StoreRepository;
 import com.example.spartadelivery.domain.user.entity.User;
-import com.example.spartadelivery.domain.user.enums.UserRole;
 import java.time.LocalTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,7 +25,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,11 +32,9 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class StoreService {
-/*
-TODO : 메뉴 구현 이후 메뉴 적용
-*/
 
     private final StoreRepository storeRepository;
+    private final MenuGetService menuGetService;
     private final LocalTimeConverter localTimeConverter;
     private final HolidayConverter holidayConverter;
 
@@ -77,9 +74,10 @@ TODO : 메뉴 구현 이후 메뉴 적용
     public StoreDetailResponseDto getStore(Long id) {
         Store findStore = storeRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "해당 가게는 존재하지 않습니다."));
-        //TODO : 해당 가게에 맞는 메뉴 리스트 조회
-        List<MenuResponseDto> menuList = new ArrayList<>();
-        return StoreDetailResponseDto.of(findStore, menuList);
+        List<String> holidays = holidayConverter.convertToEntityAttribute(findStore.getHoliday());
+        List<MenuForStoreResponseDto> menuList = menuGetService.findAllByStoreIdAndDeletedAtIsNull(id).stream()
+                .map(MenuForStoreResponseDto::of).toList();
+        return StoreDetailResponseDto.of(findStore, holidays, menuList);
     }
 
     @Transactional
@@ -113,10 +111,14 @@ TODO : 메뉴 구현 이후 메뉴 적용
         }
 
         findStore.delete();
-
-        //TODO : 이후 메뉴 구현 시 해당 가게의 메뉴도 삭제 되게 구현
+        menuGetService.findAllByStoreIdAndDeletedAtIsNull(id).forEach(Menu::delete);
 
         return StoreDeleteResponseDto.of("폐업 되었습니다.");
     }
 
+
+    public Store findByIdAndDeletedAtIsNull(Long storeId) {
+        return storeRepository.findByIdAndDeletedAtIsNull(storeId)
+                .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "해당 가게는 존재하지 않습니다."));
+    }
 }

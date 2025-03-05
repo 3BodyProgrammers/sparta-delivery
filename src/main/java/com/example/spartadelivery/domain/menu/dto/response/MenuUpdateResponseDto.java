@@ -11,21 +11,22 @@ public class MenuUpdateResponseDto {
     private final Long id;
     private final String name;
     private final Integer price;
-    //TODO : 이후 가게 Response로 교체
-    private final Long storeId;
+    private final String storeName;
     private final LocalDateTime createdAt;
     private final LocalDateTime modifiedAt;
 
-    private MenuUpdateResponseDto(Long id, String name, Integer price, Long storeId, LocalDateTime createdAt, LocalDateTime modifiedAt) {
+    private MenuUpdateResponseDto(Long id, String name, Integer price, String storeName, LocalDateTime createdAt,
+                                  LocalDateTime modifiedAt) {
         this.id = id;
         this.name = name;
         this.price = price;
-        this.storeId = storeId;
+        this.storeName = storeName;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
     }
 
-    public static MenuUpdateResponseDto of(Menu menu) {
-        return new MenuUpdateResponseDto(menu.getId(), menu.getName(), menu.getPrice(), menu.getStoreId(), menu.getCreatedAt(), menu.getModifiedAt());
+    public static MenuUpdateResponseDto of(Menu menu, String storeName) {
+        return new MenuUpdateResponseDto(menu.getId(), menu.getName(), menu.getPrice(), storeName,
+                menu.getCreatedAt(), menu.getModifiedAt());
     }
 }

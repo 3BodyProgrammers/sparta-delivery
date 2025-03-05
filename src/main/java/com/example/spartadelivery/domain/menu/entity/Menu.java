@@ -3,6 +3,8 @@ package com.example.spartadelivery.domain.menu.entity;
 import com.example.spartadelivery.common.entity.BaseEntity;
 import com.example.spartadelivery.domain.menu.dto.request.MenuSaveRequestDto;
 import com.example.spartadelivery.domain.menu.dto.request.MenuUpdateRequestDto;
+import com.example.spartadelivery.domain.store.entity.Store;
+import com.example.spartadelivery.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,27 +25,28 @@ public class Menu extends BaseEntity {
     @Column(nullable = false)
     private Integer price;
 
-    //TODO : 유저 및 가게 구현 이후 추가
-    private Long userId;
-    private String userRole;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-    private Long storeId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "store_id", nullable = false)
+    private Store store;
 
-    private Menu(String name, Integer price, Long userId, String userRole, Long storeId) {
+    private Menu(String name, Integer price, User user, Store store) {
         this.name = name;
         this.price = price;
-        this.userId = userId;
-        this.userRole = userRole;
-        this.storeId = storeId;
+        this.user = user;
+        this.store = store;
     }
 
-    public static Menu toEntity(MenuSaveRequestDto request, Long userId, String userRole, Long storeId) {
-        return new Menu(request.getName(), request.getPrice(), userId, userRole, storeId);
+    public static Menu toEntity(MenuSaveRequestDto request, User user, Store store) {
+        return new Menu(request.getName(), request.getPrice(), user, store);
     }
 
-    public void update(MenuUpdateRequestDto request) {
-        this.name = request.getName();
-        this.price = request.getPrice();
+    public void update(String name, Integer price) {
+        this.name = name;
+        this.price = price;
 
     }
 

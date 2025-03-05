@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public class MenuDeleteResponseDto {
 
-    private String message;
+    private final String message;
 
     private MenuDeleteResponseDto(String message) {
         this.message = message;
