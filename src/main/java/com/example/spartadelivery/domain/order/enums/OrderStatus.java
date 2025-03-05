@@ -15,7 +15,9 @@ public enum OrderStatus {
     },
     DELIVERY {
         @Override
-        public boolean canChangeTo(OrderStatus nextStatus) { return nextStatus == COMPLETED; }
+        public boolean canChangeTo(OrderStatus nextStatus) {
+            return nextStatus == COMPLETED;
+        }
     },
     COMPLETED {
         @Override

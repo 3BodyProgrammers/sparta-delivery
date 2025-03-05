@@ -1,7 +1,6 @@
 package com.example.spartadelivery.domain.store.repository;
 
 import com.example.spartadelivery.domain.store.entity.Store;
-
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -31,6 +30,8 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
             attributePaths = {"user"}
     )
     Optional<Store> findByIdAndUserIdAndDeletedAtIsNull(Long id, Long userId);
+
+    Page<Store> findByIdIn(List<Long> storeIdsFromMenus, Pageable pageable);
 
     List<Store> findAllByUserId(Long ownerId);
 
