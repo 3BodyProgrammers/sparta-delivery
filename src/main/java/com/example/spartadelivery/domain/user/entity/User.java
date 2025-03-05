@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor
-@Table(name="users")
+@Table(name = "users")
 public class User extends BaseEntity {
 
     @Id

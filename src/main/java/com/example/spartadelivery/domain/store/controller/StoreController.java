@@ -1,5 +1,8 @@
 package com.example.spartadelivery.domain.store.controller;
 
+import com.example.spartadelivery.common.annotation.Auth;
+import com.example.spartadelivery.common.annotation.Owner;
+import com.example.spartadelivery.common.dto.AuthUser;
 import com.example.spartadelivery.domain.store.dto.request.StoreSaveRequestDto;
 import com.example.spartadelivery.domain.store.dto.request.StoreUpdateRequestDto;
 import com.example.spartadelivery.domain.store.dto.response.StoreDeleteResponseDto;
@@ -7,6 +10,7 @@ import com.example.spartadelivery.domain.store.dto.response.StoreDetailResponseD
 import com.example.spartadelivery.domain.store.dto.response.StoreResponseDto;
 import com.example.spartadelivery.domain.store.dto.response.StoreSaveResponseDto;
 import com.example.spartadelivery.domain.store.service.StoreService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -19,11 +23,11 @@ public class StoreController {
 
     private final StoreService storeService;
 
-    //Todo : 이후 유저 구현시 AuthUser로 변환
+    @Owner
     @PostMapping
-    public ResponseEntity<StoreSaveResponseDto> saveStore(Long userId, String userRole,
-                                                          @RequestBody StoreSaveRequestDto request) {
-        StoreSaveResponseDto response = storeService.saveStore(userId, userRole, request);
+    public ResponseEntity<StoreSaveResponseDto> saveStore(@Auth AuthUser authUser,
+                                                          @Valid @RequestBody StoreSaveRequestDto request) {
+        StoreSaveResponseDto response = storeService.saveStore(authUser, request);
         return ResponseEntity.ok(response);
     }
 
@@ -39,18 +43,18 @@ public class StoreController {
         return ResponseEntity.ok(storeService.getStore(id));
     }
 
-    //Todo : 이후 유저 구현시 AuthUser로 변환
+    @Owner
     @PutMapping("/{id}")
-    public ResponseEntity<StoreResponseDto> updateStore(@PathVariable Long id, Long userId, String userRole,
-                                                        @RequestBody StoreUpdateRequestDto request) {
-        StoreResponseDto response = storeService.updateStore(id, userId, userRole, request);
+    public ResponseEntity<StoreResponseDto> updateStore(@PathVariable Long id, @Auth AuthUser authUser,
+                                                        @Valid @RequestBody StoreUpdateRequestDto request) {
+        StoreResponseDto response = storeService.updateStore(id, authUser, request);
         return ResponseEntity.ok(response);
     }
 
-    //Todo : 이후 유저 구현시 AuthUser로 변환
+    @Owner
     @PostMapping("/delete/{id}")
-    public ResponseEntity<StoreDeleteResponseDto> deleteStore(@PathVariable Long id, Long userId, String userRole) {
-        StoreDeleteResponseDto response = storeService.deleteStore(id, userId, userRole);
+    public ResponseEntity<StoreDeleteResponseDto> deleteStore(@PathVariable Long id, @Auth AuthUser authUser) {
+        StoreDeleteResponseDto response = storeService.deleteStore(id, authUser);
         return ResponseEntity.ok(response);
     }
 }

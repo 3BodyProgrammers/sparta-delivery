@@ -1,6 +1,10 @@
 package com.example.spartadelivery.domain.holiday.enums;
 
+import com.example.spartadelivery.common.exception.CustomException;
+import com.example.spartadelivery.domain.user.enums.UserRole;
+import java.util.Arrays;
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
 @Getter
 public enum Holiday {
