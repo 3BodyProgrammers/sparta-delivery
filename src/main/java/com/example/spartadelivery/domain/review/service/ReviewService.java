@@ -9,6 +9,8 @@ import com.example.spartadelivery.domain.review.dto.response.ReviewPageResponseD
 import com.example.spartadelivery.domain.review.dto.response.ReviewResponseDto;
 import com.example.spartadelivery.domain.review.entity.Review;
 import com.example.spartadelivery.domain.review.repository.ReviewRepository;
+import com.example.spartadelivery.domain.store.entity.Store;
+import com.example.spartadelivery.domain.store.service.StoreService;
 import com.example.spartadelivery.domain.user.entity.User;
 import com.example.spartadelivery.domain.order.entity.Order;
 import com.example.spartadelivery.domain.user.enums.UserRole;
@@ -25,6 +27,7 @@ public class ReviewService {
 
     private final ReviewRepository reviewRepository;
     private final OrderService orderService;
+    private final StoreService storeService;
 
     @Transactional
     public ReviewResponseDto saveReview(@Auth AuthUser authUser, Long orderId, ReviewRequestDto requestDto) {
@@ -36,11 +39,17 @@ public class ReviewService {
 
         Order order = orderService.findOrderWithStoreById(orderId);
 
-        if(!isCompleted(order.getStatus())) {
+        if (!isCompleted(order.getStatus())) {
             throw new CustomException(HttpStatus.FORBIDDEN, "배달이 완료되지 않아 리뷰를 작성할 수 없습니다.");
         }
 
-        Review review = new Review(requestDto.getRating(), requestDto.getComments(), user, order.getStore(), order);
+        Store store = order.getStore();
+
+        if (store == null || store.getDeletedAt() != null) {
+            throw new CustomException(HttpStatus.NOT_FOUND, "해당 가게가 존재하지 않거나 삭제되었습니다.");
+        }
+
+        Review review = new Review(requestDto.getRating(), requestDto.getComments(), user, store, order);
         Review savedReview = reviewRepository.save(review);
 
         return ReviewResponseDto.of(savedReview);
@@ -48,6 +57,9 @@ public class ReviewService {
 
     @Transactional(readOnly = true)
     public ReviewPageResponseDto getReviews(Long storeId, int page, int size, Byte minRating, Byte maxRating) {
+        // 가게가 존재 여부 및 삭제 여부 확인
+        storeService.findByIdAndDeletedAtIsNull(storeId);
+
         // 리뷰 생성일을 기준으로 내림차순 정렬
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Order.desc("createdAt")));
 
@@ -64,13 +76,13 @@ public class ReviewService {
     public ReviewResponseDto updateReview(AuthUser authUser, Long id, ReviewRequestDto requestDto) {
         User user = checkUser(authUser);
 
-        Review review = reviewRepository.findById(id).orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "리뷰를 찾을 수 없습니다."));
+        Review review = findReviewById(id);
 
         if (review.getDeletedAt() != null) {
             throw new CustomException(HttpStatus.NOT_FOUND, "해당 리뷰는 삭제되었습니다.");
         }
 
-        if(!review.getUser().getId().equals(user.getId())) {
+        if (!review.getUser().getId().equals(user.getId())) {
             throw new CustomException(HttpStatus.FORBIDDEN, "본인이 작성한 리뷰만 수정할 수 있습니다.");
         }
 
@@ -84,13 +96,13 @@ public class ReviewService {
     public String deleteReview(AuthUser authUser, Long id) {
         User user = checkUser(authUser);
 
-        Review review = reviewRepository.findById(id).orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "리뷰를 찾을 수 없습니다."));
+        Review review = findReviewById(id);
 
         if (review.getDeletedAt() != null) {
             throw new CustomException(HttpStatus.NOT_FOUND, "이미 삭제된 리뷰입니다.");
         }
 
-        if(!review.getUser().getId().equals(user.getId())) {
+        if (!review.getUser().getId().equals(user.getId())) {
             throw new CustomException(HttpStatus.FORBIDDEN, "본인이 작성한 리뷰만 삭제할 수 있습니다.");
         }
 
@@ -117,5 +129,16 @@ public class ReviewService {
 
     public boolean isOwner(User user) {
         return user.getUserRole() == UserRole.OWNER;
+    }
+
+    public Review findReviewById(Long reviewId) {
+        Review review = reviewRepository.findReviewWithStoreById(reviewId)
+                .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "리뷰를 찾을 수 없습니다."));
+
+        if (review.getStore() == null || review.getStore().getDeletedAt() != null) {
+            throw new CustomException(HttpStatus.NOT_FOUND, "해당 가게가 존재하지 않거나 삭제되었습니다.");
+        }
+
+        return review;
     }
 }

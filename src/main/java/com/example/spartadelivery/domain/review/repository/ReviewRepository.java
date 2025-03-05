@@ -8,9 +8,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
+
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     boolean existsByOrderId(Long orderId);
+
+    @EntityGraph(attributePaths = "store")
+    Optional<Review> findReviewWithStoreById(Long id);
 
     @Query("""
         SELECT r FROM Review r
