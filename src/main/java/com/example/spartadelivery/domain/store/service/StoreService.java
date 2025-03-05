@@ -16,12 +16,7 @@ import com.example.spartadelivery.domain.store.dto.response.StoreSaveResponseDto
 import com.example.spartadelivery.domain.store.entity.Store;
 import com.example.spartadelivery.domain.store.repository.StoreRepository;
 import com.example.spartadelivery.domain.user.entity.User;
-<<<<<<< HEAD
-import com.example.spartadelivery.domain.user.enums.UserRole;
-
 import java.time.LocalDateTime;
-=======
->>>>>>> de33ae6943e9f2329bfe097b0e4b2243f3011b3e
 import java.time.LocalTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -122,7 +117,12 @@ public class StoreService {
         return StoreDeleteResponseDto.of("폐업 되었습니다.");
     }
 
-<<<<<<< HEAD
+    public Store findByIdAndDeletedAtIsNull(Long storeId) {
+        return storeRepository.findByIdAndDeletedAtIsNull(storeId)
+                .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "해당 가게는 존재하지 않습니다."));
+    }
+
+
     //OrderService import
     public Store findStoreById(Long storeId) {
         return storeRepository.findById(storeId)
@@ -142,12 +142,4 @@ public class StoreService {
         return storeRepository.findAllByUserId(ownerId);
     }
 
-
-=======
-
-    public Store findByIdAndDeletedAtIsNull(Long storeId) {
-        return storeRepository.findByIdAndDeletedAtIsNull(storeId)
-                .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "해당 가게는 존재하지 않습니다."));
-    }
->>>>>>> de33ae6943e9f2329bfe097b0e4b2243f3011b3e
 }
