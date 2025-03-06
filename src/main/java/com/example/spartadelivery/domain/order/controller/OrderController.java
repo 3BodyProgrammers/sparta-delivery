@@ -1,6 +1,7 @@
 package com.example.spartadelivery.domain.order.controller;
 
 import com.example.spartadelivery.common.annotation.Auth;
+import com.example.spartadelivery.common.annotation.Order;
 import com.example.spartadelivery.common.annotation.Owner;
 import com.example.spartadelivery.common.annotation.User;
 import com.example.spartadelivery.common.dto.AuthUser;
@@ -23,6 +24,7 @@ public class OrderController {
     private final OrderService orderService;
 
     @User
+    @Order
     @PostMapping
     public ResponseEntity<OrderSaveResponseDto> save(
             @Auth AuthUser authUser,
@@ -33,10 +35,10 @@ public class OrderController {
     }
 
     @Owner
+    @Order
     @PatchMapping("/{orderId}/status")
     public ResponseEntity<OrderStatusUpdateResponseDto> updateOrderStatus(
             @PathVariable Long orderId,
-            @Auth AuthUser authUser,
             @RequestBody OrderStatusUpdateRequestDto request
     ) {
         OrderStatusUpdateResponseDto response = orderService.updateOrderStatus(orderId, request);
@@ -62,6 +64,7 @@ public class OrderController {
         return ResponseEntity.ok(response);
     }
 
+    @Order
     @DeleteMapping("/{orderId}")
     public ResponseEntity<Void> cancelOrder(
             @PathVariable Long orderId,
