@@ -12,7 +12,7 @@ import com.example.spartadelivery.domain.review.dto.response.ReviewResponseDto;
 import com.example.spartadelivery.domain.review.entity.Review;
 import com.example.spartadelivery.domain.review.repository.ReviewRepository;
 import com.example.spartadelivery.domain.store.entity.Store;
-import com.example.spartadelivery.domain.store.service.StoreService;
+import com.example.spartadelivery.domain.store.service.StoreGetService;
 import com.example.spartadelivery.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -29,7 +29,7 @@ public class ReviewService {
 
     private final ReviewRepository reviewRepository;
     private final OrderService orderService;
-    private final StoreService storeService;
+    private final StoreGetService storeGetService;
 
     @Transactional
     public ReviewResponseDto saveReview(@Auth AuthUser authUser, Long orderId, ReviewRequestDto requestDto) {
@@ -60,7 +60,7 @@ public class ReviewService {
     @Transactional(readOnly = true)
     public ReviewPageResponseDto getReviews(Long storeId, int page, int size, Byte minRating, Byte maxRating) {
         // 가게가 존재 여부 및 삭제 여부 확인
-        storeService.findByIdAndDeletedAtIsNull(storeId);
+        storeGetService.findByIdAndDeletedAtIsNull(storeId);
 
         // 리뷰 생성일을 기준으로 내림차순 정렬
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Order.desc("createdAt")));
