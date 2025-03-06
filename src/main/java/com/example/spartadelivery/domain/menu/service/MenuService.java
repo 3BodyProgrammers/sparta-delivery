@@ -10,7 +10,7 @@ import com.example.spartadelivery.domain.menu.dto.response.MenuUpdateResponseDto
 import com.example.spartadelivery.domain.menu.entity.Menu;
 import com.example.spartadelivery.domain.menu.repository.MenuRepository;
 import com.example.spartadelivery.domain.store.entity.Store;
-import com.example.spartadelivery.domain.store.service.StoreService;
+import com.example.spartadelivery.domain.store.service.StoreGetService;
 import com.example.spartadelivery.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,12 +23,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class MenuService {
 
     private final MenuRepository menuRepository;
-    private final StoreService storeService;
+    private final StoreGetService storeGetService;
 
     public MenuSaveResponseDto saveMenu(Long storeId, AuthUser authUser, MenuSaveRequestDto request) {
         User user = User.fromAuthUser(authUser);
 
-        Store findStore = storeService.findByIdAndDeletedAtIsNull(storeId);
+        Store findStore = storeGetService.findByIdAndDeletedAtIsNull(storeId);
 
         if (!findStore.getUser().getId().equals(user.getId())) {
             throw new CustomException(HttpStatus.FORBIDDEN, "메뉴 생성은 해당 가게의 사장님만 가능합니다.");
@@ -53,7 +53,7 @@ public class MenuService {
         Menu findMenu = menuRepository.findById(id)
                 .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "해당 메뉴는 존재하지 않습니다."));
 
-        Store findStore = storeService.findByIdAndDeletedAtIsNull(storeId);
+        Store findStore = storeGetService.findByIdAndDeletedAtIsNull(storeId);
 
         if (!findStore.getUser().getId().equals(user.getId())) {
             throw new CustomException(HttpStatus.FORBIDDEN, "메뉴 수정은 해당 가게의 사장님만 가능합니다.");
@@ -70,7 +70,7 @@ public class MenuService {
         Menu findMenu = menuRepository.findById(id)
                 .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "해당 메뉴는 존재하지 않습니다."));
 
-        Store findStore = storeService.findByIdAndDeletedAtIsNull(storeId);
+        Store findStore = storeGetService.findByIdAndDeletedAtIsNull(storeId);
 
         if (!findStore.getUser().getId().equals(user.getId())) {
             throw new CustomException(HttpStatus.FORBIDDEN, "메뉴 삭제는 해당 가게의 사장님만 가능합니다.");
