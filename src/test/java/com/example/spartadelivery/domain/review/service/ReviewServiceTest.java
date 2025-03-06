@@ -19,6 +19,7 @@ import com.example.spartadelivery.domain.review.dto.response.ReviewResponseDto;
 import com.example.spartadelivery.domain.review.entity.Review;
 import com.example.spartadelivery.domain.review.repository.ReviewRepository;
 import com.example.spartadelivery.domain.store.entity.Store;
+import com.example.spartadelivery.domain.store.service.StoreGetService;
 import com.example.spartadelivery.domain.store.service.StoreService;
 import com.example.spartadelivery.domain.user.entity.User;
 import com.example.spartadelivery.domain.user.enums.UserRole;
@@ -50,7 +51,7 @@ class ReviewServiceTest {
     private OrderService orderService;
 
     @Mock
-    private StoreService storeService;
+    private StoreGetService storeGetService;
 
     @InjectMocks
     private ReviewService reviewService;
@@ -151,7 +152,7 @@ class ReviewServiceTest {
             size = 10;
 
             Store store = mock(Store.class);
-            given(storeService.findByIdAndDeletedAtIsNull(storeId)).willReturn(store);
+            given(storeGetService.findByIdAndDeletedAtIsNull(storeId)).willReturn(store);
 
             Review review1 = new Review((byte) 5, "Excellent", mock(User.class), store, mock(Order.class));
             Review review2 = new Review((byte) 4, "Good", mock(User.class), store, mock(Order.class));
