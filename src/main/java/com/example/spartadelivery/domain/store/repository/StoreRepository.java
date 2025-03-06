@@ -32,4 +32,7 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
     Optional<Store> findByIdAndUserIdAndDeletedAtIsNull(Long id, Long userId);
 
     Page<Store> findByIdIn(List<Long> storeIdsFromMenus, Pageable pageable);
+
+    List<Store> findAllByUserId(Long id);
+
 }

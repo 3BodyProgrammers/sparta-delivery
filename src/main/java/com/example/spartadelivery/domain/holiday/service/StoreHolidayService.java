@@ -4,11 +4,12 @@ import com.example.spartadelivery.common.dto.AuthUser;
 import com.example.spartadelivery.common.exception.CustomException;
 import com.example.spartadelivery.config.HolidayConverter;
 import com.example.spartadelivery.domain.holiday.dto.request.StoreHolidayRequestDto;
+import com.example.spartadelivery.domain.holiday.enums.Holiday;
 import com.example.spartadelivery.domain.store.dto.response.StoreResponseDto;
 import com.example.spartadelivery.domain.store.entity.Store;
 import com.example.spartadelivery.domain.store.repository.StoreRepository;
 import com.example.spartadelivery.domain.user.entity.User;
-import com.example.spartadelivery.domain.user.enums.UserRole;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -37,5 +38,12 @@ public class StoreHolidayService {
         findStore.updateHolidays(holiday);
 
         return StoreResponseDto.of(findStore, holidays);
+    }
+
+    public boolean isHoliday(Store store, LocalDateTime now) {
+        int holidayValue = store.getHoliday();
+        int todayValue = Holiday.valueOf(now.getDayOfWeek().name()).getValue();
+
+        return (holidayValue & todayValue) != 0;
     }
 }
