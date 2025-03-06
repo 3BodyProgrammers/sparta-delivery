@@ -1,16 +1,13 @@
 package com.example.spartadelivery.domain.store.dto.response;
 
-import com.example.spartadelivery.domain.holiday.enums.Holiday;
 import com.example.spartadelivery.domain.store.entity.Store;
-import lombok.Getter;
-
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import lombok.Getter;
 
 @Getter
 public class StoreResponseDto {
-//TODO : 이후 휴일 구현 시 휴일 추가
 
     private final Long id;
     private final String name;
@@ -33,6 +30,6 @@ public class StoreResponseDto {
     }
 
     public static StoreResponseDto of(Store store, List<String> holidays) {
-        return new StoreResponseDto(store.getId(), store.getName(), store.getOpenAt(), store.getCloseAt(), store.getMinimumPrice(), holidays, store.getCreatedAt(), store.getModifiedAt());
+        return new StoreResponseDto(store.getId(), store.getName(), store.getOpenAt(), store.getCloseAt(), store.getMinimumPrice(), holidays, store.getCreatedAt(), LocalDateTime.now());
     }
 }
