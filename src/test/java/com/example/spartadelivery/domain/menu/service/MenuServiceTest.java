@@ -2,18 +2,13 @@ package com.example.spartadelivery.domain.menu.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.refEq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 
 import com.example.spartadelivery.common.dto.AuthUser;
 import com.example.spartadelivery.common.exception.CustomException;
-import com.example.spartadelivery.domain.holiday.enums.Holiday;
 import com.example.spartadelivery.domain.menu.dto.request.MenuSaveRequestDto;
 import com.example.spartadelivery.domain.menu.dto.request.MenuUpdateRequestDto;
 import com.example.spartadelivery.domain.menu.dto.response.MenuDeleteResponseDto;
@@ -22,7 +17,7 @@ import com.example.spartadelivery.domain.menu.dto.response.MenuUpdateResponseDto
 import com.example.spartadelivery.domain.menu.entity.Menu;
 import com.example.spartadelivery.domain.menu.repository.MenuRepository;
 import com.example.spartadelivery.domain.store.entity.Store;
-import com.example.spartadelivery.domain.store.service.StoreService;
+import com.example.spartadelivery.domain.store.service.StoreGetService;
 import com.example.spartadelivery.domain.user.entity.User;
 import com.example.spartadelivery.domain.user.enums.UserRole;
 import java.time.LocalTime;
@@ -43,7 +38,7 @@ class MenuServiceTest {
     private MenuRepository menuRepository;
 
     @Mock
-    private StoreService storeService;
+    private StoreGetService storeGetService;
 
     @InjectMocks
     private MenuService menuService;
@@ -68,7 +63,7 @@ class MenuServiceTest {
         void 메뉴_생성_시_가게가_존재하지_않으면_실패() {
             //Given
             Long storeId = 1L;
-            given(storeService.findByIdAndDeletedAtIsNull(anyLong())).willThrow(
+            given(storeGetService.findByIdAndDeletedAtIsNull(anyLong())).willThrow(
                     new CustomException(HttpStatus.BAD_REQUEST, "해당 가게는 존재하지 않습니다."));
             //When & Then
             assertThatThrownBy(() -> menuService.saveMenu(storeId, authUser, request))
@@ -81,7 +76,7 @@ class MenuServiceTest {
             //Given
             Long storeId = 1L;
             AuthUser anotherUser = new AuthUser(2L, "bb@bb.com", "name", UserRole.OWNER);
-            given(storeService.findByIdAndDeletedAtIsNull(anyLong())).willReturn(store);
+            given(storeGetService.findByIdAndDeletedAtIsNull(anyLong())).willReturn(store);
 
             //When & Then
             assertThatThrownBy(() -> menuService.saveMenu(storeId, anotherUser, request))
@@ -95,7 +90,7 @@ class MenuServiceTest {
             Long storeId = 1L;
             Menu oldMenu = Menu.toEntity(
                     new MenuSaveRequestDto("oldName", 5000), user, store);
-            given(storeService.findByIdAndDeletedAtIsNull(anyLong())).willReturn(store);
+            given(storeGetService.findByIdAndDeletedAtIsNull(anyLong())).willReturn(store);
             given(menuRepository.existsByStoreIdAndName(anyLong(), anyString())).willReturn(true);
             given(menuRepository.findByStoreIdAndName(anyLong(), anyString())).willReturn(oldMenu);
 
@@ -112,7 +107,7 @@ class MenuServiceTest {
             //Given
             Long storeId = 1L;
             Menu menu = Menu.toEntity(request, user, store);
-            given(storeService.findByIdAndDeletedAtIsNull(anyLong())).willReturn(store);
+            given(storeGetService.findByIdAndDeletedAtIsNull(anyLong())).willReturn(store);
             given(menuRepository.existsByStoreIdAndName(anyLong(), anyString())).willReturn(false);
             given(menuRepository.save(any())).willReturn(menu);
 
@@ -161,7 +156,7 @@ class MenuServiceTest {
             Long storeId = 1L;
             Long menuId = 1L;
             given(menuRepository.findById(anyLong())).willReturn(Optional.of(menu));
-            given(storeService.findByIdAndDeletedAtIsNull(anyLong())).willThrow(
+            given(storeGetService.findByIdAndDeletedAtIsNull(anyLong())).willThrow(
                     new CustomException(HttpStatus.BAD_REQUEST, "해당 가게는 존재하지 않습니다."));
             //When & Then
             assertThatThrownBy(() -> menuService.updateMenu(menuId, storeId, authUser, request))
@@ -176,7 +171,7 @@ class MenuServiceTest {
             Long menuId = 1L;
             AuthUser anotherUser = new AuthUser(2L, "bb@bb.com", "name", UserRole.OWNER);
             given(menuRepository.findById(anyLong())).willReturn(Optional.of(menu));
-            given(storeService.findByIdAndDeletedAtIsNull(anyLong())).willReturn(store);
+            given(storeGetService.findByIdAndDeletedAtIsNull(anyLong())).willReturn(store);
             //When & Then
             assertThatThrownBy(() -> menuService.updateMenu(menuId, storeId, anotherUser, request))
                     .isInstanceOf(CustomException.class)
@@ -189,7 +184,7 @@ class MenuServiceTest {
             Long menuId = 1L;
             Long storeId = 1L;
             given(menuRepository.findById(anyLong())).willReturn(Optional.of(menu));
-            given(storeService.findByIdAndDeletedAtIsNull(anyLong())).willReturn(store);
+            given(storeGetService.findByIdAndDeletedAtIsNull(anyLong())).willReturn(store);
 
             //When
             MenuUpdateResponseDto response = menuService.updateMenu(menuId, storeId, authUser, request);
@@ -234,7 +229,7 @@ class MenuServiceTest {
             Long storeId = 1L;
             Long menuId = 1L;
             given(menuRepository.findById(anyLong())).willReturn(Optional.of(menu));
-            given(storeService.findByIdAndDeletedAtIsNull(anyLong())).willThrow(
+            given(storeGetService.findByIdAndDeletedAtIsNull(anyLong())).willThrow(
                     new CustomException(HttpStatus.BAD_REQUEST, "해당 가게는 존재하지 않습니다."));
             //When & Then
             assertThatThrownBy(() -> menuService.deleteMenu(menuId, storeId, authUser))
@@ -249,7 +244,7 @@ class MenuServiceTest {
             Long menuId = 1L;
             AuthUser anotherUser = new AuthUser(2L, "bb@bb.com", "name", UserRole.OWNER);
             given(menuRepository.findById(anyLong())).willReturn(Optional.of(menu));
-            given(storeService.findByIdAndDeletedAtIsNull(anyLong())).willReturn(store);
+            given(storeGetService.findByIdAndDeletedAtIsNull(anyLong())).willReturn(store);
             //When & Then
             assertThatThrownBy(() -> menuService.deleteMenu(menuId, storeId, anotherUser))
                     .isInstanceOf(CustomException.class)
@@ -262,7 +257,7 @@ class MenuServiceTest {
             Long menuId = 1L;
             Long storeId = 1L;
             given(menuRepository.findById(anyLong())).willReturn(Optional.of(menu));
-            given(storeService.findByIdAndDeletedAtIsNull(anyLong())).willReturn(store);
+            given(storeGetService.findByIdAndDeletedAtIsNull(anyLong())).willReturn(store);
 
             //When
             MenuDeleteResponseDto response = menuService.deleteMenu(menuId, storeId, authUser);

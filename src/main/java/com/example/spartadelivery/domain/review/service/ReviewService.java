@@ -5,14 +5,14 @@ import com.example.spartadelivery.common.dto.AuthUser;
 import com.example.spartadelivery.common.exception.CustomException;
 import com.example.spartadelivery.domain.order.entity.Order;
 import com.example.spartadelivery.domain.order.enums.OrderStatus;
-import com.example.spartadelivery.domain.order.service.OrderService;
+import com.example.spartadelivery.domain.order.service.OrderGetService;
 import com.example.spartadelivery.domain.review.dto.request.ReviewRequestDto;
 import com.example.spartadelivery.domain.review.dto.response.ReviewPageResponseDto;
 import com.example.spartadelivery.domain.review.dto.response.ReviewResponseDto;
 import com.example.spartadelivery.domain.review.entity.Review;
 import com.example.spartadelivery.domain.review.repository.ReviewRepository;
 import com.example.spartadelivery.domain.store.entity.Store;
-import com.example.spartadelivery.domain.store.service.StoreService;
+import com.example.spartadelivery.domain.store.service.StoreGetService;
 import com.example.spartadelivery.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -28,8 +28,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
-    private final OrderService orderService;
-    private final StoreService storeService;
+    private final OrderGetService orderGetService;
+    private final StoreGetService storeGetService;
 
     @Transactional
     public ReviewResponseDto saveReview(@Auth AuthUser authUser, Long orderId, ReviewRequestDto requestDto) {
@@ -39,7 +39,7 @@ public class ReviewService {
             throw new CustomException(HttpStatus.BAD_REQUEST, "이미 작성된 리뷰가 있거나 삭제된 주문입니다. 리뷰를 다시 작성할 수 없습니다.");
         }
 
-        Order order = orderService.findOrderWithStoreById(orderId);
+        Order order = orderGetService.findOrderWithStoreById(orderId);
 
         if (!isCompleted(order.getStatus())) {
             throw new CustomException(HttpStatus.FORBIDDEN, "배달이 완료되지 않아 리뷰를 작성할 수 없습니다.");
@@ -60,7 +60,7 @@ public class ReviewService {
     @Transactional(readOnly = true)
     public ReviewPageResponseDto getReviews(Long storeId, int page, int size, Byte minRating, Byte maxRating) {
         // 가게가 존재 여부 및 삭제 여부 확인
-        storeService.findByIdAndDeletedAtIsNull(storeId);
+        storeGetService.findByIdAndDeletedAtIsNull(storeId);
 
         // 리뷰 생성일을 기준으로 내림차순 정렬
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Order.desc("createdAt")));
