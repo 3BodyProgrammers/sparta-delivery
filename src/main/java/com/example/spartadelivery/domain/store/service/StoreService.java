@@ -9,13 +9,11 @@ import com.example.spartadelivery.domain.menu.entity.Menu;
 import com.example.spartadelivery.domain.menu.service.MenuGetService;
 import com.example.spartadelivery.domain.store.dto.request.StoreSaveRequestDto;
 import com.example.spartadelivery.domain.store.dto.request.StoreUpdateRequestDto;
-import com.example.spartadelivery.domain.store.dto.response.StoreDeleteResponseDto;
-import com.example.spartadelivery.domain.store.dto.response.StoreDetailResponseDto;
-import com.example.spartadelivery.domain.store.dto.response.StoreResponseDto;
-import com.example.spartadelivery.domain.store.dto.response.StoreSaveResponseDto;
+import com.example.spartadelivery.domain.store.dto.response.*;
 import com.example.spartadelivery.domain.store.entity.Store;
 import com.example.spartadelivery.domain.store.repository.StoreRepository;
 import com.example.spartadelivery.domain.user.entity.User;
+
 import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.List;
@@ -50,7 +48,7 @@ public class StoreService {
 
         Store store = Store.toEntity(request.getName(),
                 localTimeConverter.convertToEntityAttribute(request.getOpenAt()),
-                localTimeConverter.convertToEntityAttribute(request.getCloseAt()), request.getMinimumPrice(), user);
+                localTimeConverter.convertToEntityAttribute(request.getCloseAt()), request.getMinimumPrice(), request.getNotice(), user);
         Store savedStore = storeRepository.save(store);
         return StoreSaveResponseDto.of(savedStore);
     }
@@ -80,7 +78,7 @@ public class StoreService {
     }
 
     @Transactional
-    public StoreResponseDto updateStore(Long id, AuthUser authUser, StoreUpdateRequestDto request) {
+    public StoreUpdateResponseDto updateStore(Long id, AuthUser authUser, StoreUpdateRequestDto request) {
         User user = User.fromAuthUser(authUser);
 
         Store findStore = storeRepository.findByIdAndUserIdAndDeletedAtIsNull(id, user.getId())
@@ -92,10 +90,10 @@ public class StoreService {
 
         LocalTime openAt = localTimeConverter.convertToEntityAttribute(request.getOpenAt());
         LocalTime closeAt = localTimeConverter.convertToEntityAttribute(request.getCloseAt());
-        findStore.update(request.getName(), openAt, closeAt, request.getMinimumPrice());
+        findStore.update(request.getName(), openAt, closeAt, request.getMinimumPrice(), request.getNotice());
         List<String> holidays = holidayConverter.convertToEntityAttribute(findStore.getHoliday());
 
-        return StoreResponseDto.of(findStore, holidays);
+        return StoreUpdateResponseDto.of(findStore, holidays);
     }
 
     @Transactional

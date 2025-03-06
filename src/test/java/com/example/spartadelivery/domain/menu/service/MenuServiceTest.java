@@ -60,7 +60,7 @@ class MenuServiceTest {
         void setUp() {
             authUser = new AuthUser(1L, "aa@aa.com", "name", UserRole.OWNER);
             user = User.fromAuthUser(authUser);
-            store = Store.toEntity("Store", LocalTime.of(8, 0), LocalTime.of(22, 0), 10000, user);
+            store = Store.toEntity("Store", LocalTime.of(8, 0), LocalTime.of(22, 0), 10000, "Store Notice", user);
             request = new MenuSaveRequestDto("Menu", 10000);
         }
 
@@ -138,7 +138,7 @@ class MenuServiceTest {
         void setUp() {
             authUser = new AuthUser(1L, "aa@aa.com", "name", UserRole.OWNER);
             user = User.fromAuthUser(authUser);
-            store = Store.toEntity("Store", LocalTime.of(8, 0), LocalTime.of(22, 0), 10000, user);
+            store = Store.toEntity("Store", LocalTime.of(8, 0), LocalTime.of(22, 0), 10000, "Store Notice", user);
             menu = Menu.toEntity(new MenuSaveRequestDto("oldName", 5000), user, store);
             request = new MenuUpdateRequestDto("newName", 10000);
         }
@@ -212,7 +212,7 @@ class MenuServiceTest {
         void setUp() {
             authUser = new AuthUser(1L, "aa@aa.com", "name", UserRole.OWNER);
             user = User.fromAuthUser(authUser);
-            store = Store.toEntity("Store", LocalTime.of(8, 0), LocalTime.of(22, 0), 10000, user);
+            store = Store.toEntity("Store", LocalTime.of(8, 0), LocalTime.of(22, 0), 10000, "Store Notice", user);
             menu = Menu.toEntity(new MenuSaveRequestDto("oldName", 5000), user, store);
         }
 

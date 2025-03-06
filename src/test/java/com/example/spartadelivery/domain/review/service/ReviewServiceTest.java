@@ -68,7 +68,7 @@ class ReviewServiceTest {
         void setUp() {
             authUser = new AuthUser(1L, "aa@aa.com", "name", UserRole.USER);
             user = User.fromAuthUser(authUser);
-            store = Store.toEntity("Store", LocalTime.of(8, 0), LocalTime.of(22, 0), 10000, user);
+            store = Store.toEntity("Store", LocalTime.of(8, 0), LocalTime.of(22, 0), 10000, "Store Notice", user);
             order = Order.toEntity(user, store, "menuName", 12000);
             requestDto = new ReviewRequestDto((byte) 5, "Great food!");
         }
@@ -216,7 +216,7 @@ class ReviewServiceTest {
         void setUp() {
             authUser = new AuthUser(1L, "aa@aa.com", "name", UserRole.USER);
             user = User.fromAuthUser(authUser);
-            store = Store.toEntity("Store", LocalTime.of(8, 0), LocalTime.of(22, 0), 10000, user);
+            store = Store.toEntity("Store", LocalTime.of(8, 0), LocalTime.of(22, 0), 10000, "Store Notice", user);
             order = Order.toEntity(user, store, "menuName", 12000);
             requestDto = new ReviewRequestDto((byte) 5, "Great food!");
             review = new Review(requestDto.getRating(), requestDto.getComments(), user, store, order);
@@ -326,7 +326,7 @@ class ReviewServiceTest {
         void setUp() {
             authUser = new AuthUser(1L, "aa@aa.com", "name", UserRole.USER);
             user = User.fromAuthUser(authUser);
-            store = Store.toEntity("Store", LocalTime.of(8, 0), LocalTime.of(22, 0), 10000, user);
+            store = Store.toEntity("Store", LocalTime.of(8, 0), LocalTime.of(22, 0), 10000, "Store Notice", user);
             order = Order.toEntity(user, store, "menuName", 12000);
             review = new Review((byte) 5, "Great food!", user, store, order);
         }

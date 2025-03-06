@@ -19,18 +19,20 @@ public class StoreDetailResponseDto {
     private final LocalTime closeAt;
     private final Integer minimumPrice;
     private final List<String> holidays;
+    private final String notice;
     private final List<MenuForStoreResponseDto> menuList;
     private final LocalDateTime createdAt;
     private final LocalDateTime modifiedAt;
 
     private StoreDetailResponseDto(Long id, String name, LocalTime openAt, LocalTime closeAt, Integer minimumPrice, List<String> holidays,
-                                   List<MenuForStoreResponseDto> menuList, LocalDateTime createdAt, LocalDateTime modifiedAt) {
+                                   String notice, List<MenuForStoreResponseDto> menuList, LocalDateTime createdAt, LocalDateTime modifiedAt) {
         this.id = id;
         this.name = name;
         this.openAt = openAt;
         this.closeAt = closeAt;
         this.minimumPrice = minimumPrice;
         this.holidays = holidays;
+        this.notice = notice;
         this.menuList = menuList;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
@@ -38,6 +40,6 @@ public class StoreDetailResponseDto {
 
     public static StoreDetailResponseDto of(Store store, List<String> holidays, List<MenuForStoreResponseDto> menuList) {
         return new StoreDetailResponseDto(store.getId(), store.getName(), store.getOpenAt(), store.getCloseAt(),
-                store.getMinimumPrice(), holidays, menuList, store.getCreatedAt(), store.getModifiedAt());
+                store.getMinimumPrice(), holidays, store.getNotice(), menuList, store.getCreatedAt(), store.getModifiedAt());
     }
 }

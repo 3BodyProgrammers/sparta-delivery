@@ -5,10 +5,7 @@ import com.example.spartadelivery.common.annotation.Owner;
 import com.example.spartadelivery.common.dto.AuthUser;
 import com.example.spartadelivery.domain.store.dto.request.StoreSaveRequestDto;
 import com.example.spartadelivery.domain.store.dto.request.StoreUpdateRequestDto;
-import com.example.spartadelivery.domain.store.dto.response.StoreDeleteResponseDto;
-import com.example.spartadelivery.domain.store.dto.response.StoreDetailResponseDto;
-import com.example.spartadelivery.domain.store.dto.response.StoreResponseDto;
-import com.example.spartadelivery.domain.store.dto.response.StoreSaveResponseDto;
+import com.example.spartadelivery.domain.store.dto.response.*;
 import com.example.spartadelivery.domain.store.service.StoreService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -45,9 +42,9 @@ public class StoreController {
 
     @Owner
     @PutMapping("/{id}")
-    public ResponseEntity<StoreResponseDto> updateStore(@PathVariable Long id, @Auth AuthUser authUser,
-                                                        @Valid @RequestBody StoreUpdateRequestDto request) {
-        StoreResponseDto response = storeService.updateStore(id, authUser, request);
+    public ResponseEntity<StoreUpdateResponseDto> updateStore(@PathVariable Long id, @Auth AuthUser authUser,
+                                                              @Valid @RequestBody StoreUpdateRequestDto request) {
+        StoreUpdateResponseDto response = storeService.updateStore(id, authUser, request);
         return ResponseEntity.ok(response);
     }
 
