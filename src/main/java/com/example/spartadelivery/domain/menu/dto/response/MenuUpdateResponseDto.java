@@ -27,6 +27,6 @@ public class MenuUpdateResponseDto {
 
     public static MenuUpdateResponseDto of(Menu menu, String storeName) {
         return new MenuUpdateResponseDto(menu.getId(), menu.getName(), menu.getPrice(), storeName,
-                menu.getCreatedAt(), menu.getModifiedAt());
+                menu.getCreatedAt(), LocalDateTime.now());
     }
 }

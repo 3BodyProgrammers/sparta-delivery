@@ -12,7 +12,7 @@ public class LocalTimeConverter implements AttributeConverter<LocalTime, String>
 
     @Override
     public String convertToDatabaseColumn(LocalTime localTime) {
-        return localTime.format(DateTimeFormatter.ofPattern("hh:mm"));
+        return localTime.format(DateTimeFormatter.ofPattern("HH:mm"));
     }
 
     @Override

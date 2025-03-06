@@ -8,8 +8,6 @@ import java.time.LocalTime;
 
 @Getter
 public class StoreSaveResponseDto {
-//TODO : 이후 휴일 구현 시 휴일 추가
-
     private final Long id;
     private final String name;
     private final LocalTime openAt;
