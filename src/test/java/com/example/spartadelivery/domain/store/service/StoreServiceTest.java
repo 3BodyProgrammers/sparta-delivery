@@ -1,6 +1,5 @@
 package com.example.spartadelivery.domain.store.service;
 
-import com.example.spartadelivery.common.annotation.Auth;
 import com.example.spartadelivery.common.dto.AuthUser;
 import com.example.spartadelivery.common.exception.CustomException;
 import com.example.spartadelivery.config.HolidayConverter;
@@ -10,16 +9,11 @@ import com.example.spartadelivery.domain.menu.entity.Menu;
 import com.example.spartadelivery.domain.menu.service.MenuGetService;
 import com.example.spartadelivery.domain.store.dto.request.StoreSaveRequestDto;
 import com.example.spartadelivery.domain.store.dto.request.StoreUpdateRequestDto;
-import com.example.spartadelivery.domain.store.dto.response.StoreDeleteResponseDto;
-import com.example.spartadelivery.domain.store.dto.response.StoreDetailResponseDto;
-import com.example.spartadelivery.domain.store.dto.response.StoreResponseDto;
-import com.example.spartadelivery.domain.store.dto.response.StoreSaveResponseDto;
+import com.example.spartadelivery.domain.store.dto.response.*;
 import com.example.spartadelivery.domain.store.entity.Store;
 import com.example.spartadelivery.domain.store.repository.StoreRepository;
 import com.example.spartadelivery.domain.user.entity.User;
 import com.example.spartadelivery.domain.user.enums.UserRole;
-import java.util.ArrayList;
-import org.hibernate.cache.spi.support.AbstractRegion;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -69,7 +63,7 @@ class StoreServiceTest {
         @BeforeEach
         void setUp() {
             authUser = new AuthUser(1L, "aa@aa.com", "name", UserRole.OWNER);
-            storeSaveRequestDto = new StoreSaveRequestDto("Test Store", "08:00", "22:00", 10000);
+            storeSaveRequestDto = new StoreSaveRequestDto("Test Store", "08:00", "22:00", 10000, "Store Notice");
         }
 
         @Test
@@ -99,7 +93,7 @@ class StoreServiceTest {
         public void 가게_등록_시_성공() {
             // given
             User user = User.fromAuthUser(authUser);
-            Store store = Store.toEntity("Test Store", LocalTime.of(8, 0), LocalTime.of(22, 0), 10000, user);
+            Store store = Store.toEntity("Test Store", LocalTime.of(8, 0), LocalTime.of(22, 0), 10000, "Store Notice", user);
             given(storeRepository.countByUserId(anyLong())).willReturn(0); // 가게 개수 제한 미달
             given(storeRepository.existsByName(anyString())).willReturn(false); // 중복 가게 없음
             given(storeRepository.save(any())).willReturn(store);
@@ -125,8 +119,8 @@ class StoreServiceTest {
             User user1 = User.fromAuthUser(authUser1);
             AuthUser authUser2 = new AuthUser(2L, "bb@bb.com", "name2", UserRole.OWNER);
             User user2 = User.fromAuthUser(authUser2);
-            store1 = Store.toEntity("Store A", null, null, 10000, user1);
-            store2 = Store.toEntity("Store B", null, null, 20000, user2);
+            store1 = Store.toEntity("Store A", null, null, 10000, "Store Notice", user1);
+            store2 = Store.toEntity("Store B", null, null, 20000, "Store Notice", user2);
 
             pageable = PageRequest.of(0, 10);
         }
@@ -200,7 +194,7 @@ class StoreServiceTest {
             AuthUser authUser = new AuthUser(1L, "aa@aa.com", "name", UserRole.OWNER);
             User user = User.fromAuthUser(authUser);
             long storeId = 1L;
-            Store store = Store.toEntity("Store", LocalTime.of(8, 0), LocalTime.of(22, 0), 10000, user);
+            Store store = Store.toEntity("Store", LocalTime.of(8, 0), LocalTime.of(22, 0), 10000, "Store Notice", user);
             List<Menu> menuList = List.of(Menu.toEntity(new MenuSaveRequestDto("menu1", 10000), user, store),Menu.toEntity(new MenuSaveRequestDto("menu2", 12000), user, store),Menu.toEntity(new MenuSaveRequestDto("menu3", 14000), user, store));
             given(storeRepository.findByIdAndDeletedAtIsNull(anyLong())).willReturn(Optional.of(store));
             given(menuGetService.findAllByStoreIdAndDeletedAtIsNull(anyLong())).willReturn(menuList);
@@ -226,8 +220,8 @@ class StoreServiceTest {
         void setUp() {
             authUser = new AuthUser(1L, "aa@aa.com", "name", UserRole.OWNER);
             user = User.fromAuthUser(authUser);
-            store = Store.toEntity("Old Store", null, null, 10000, user);
-            updateRequest = new StoreUpdateRequestDto("Updated Store", "10:00", "22:00", 20000);
+            store = Store.toEntity("Old Store", null, null, 10000, "Store Notice", user);
+            updateRequest = new StoreUpdateRequestDto("Updated Store", "10:00", "22:00", 20000, "Store Notice");
         }
 
         @Test
@@ -269,7 +263,7 @@ class StoreServiceTest {
                     .thenReturn(List.of("Sunday"));
 
             // When
-            StoreResponseDto result = storeService.updateStore(storeId, authUser, updateRequest);
+            StoreUpdateResponseDto result = storeService.updateStore(storeId, authUser, updateRequest);
 
             // Then
             assertNotNull(result);
@@ -296,7 +290,7 @@ class StoreServiceTest {
         void setUp() {
             authUser = new AuthUser(1L, "aa@aa.com", "name", UserRole.OWNER);
             user = User.fromAuthUser(authUser);
-            store = Store.toEntity("Store", null, null, 10000, user);
+            store = Store.toEntity("Store", null, null, 10000, "Store Notice", user);
         }
 
 

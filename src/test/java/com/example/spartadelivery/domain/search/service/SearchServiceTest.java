@@ -62,7 +62,7 @@ class SearchServiceTest {
 
 
         for (int i = 1; i <= 3; i++) {
-            Store store = Store.toEntity("덮밥" + i, LocalTime.of(8, 0), LocalTime.of(20, 0), 10000, user2);
+            Store store = Store.toEntity("덮밥" + i, LocalTime.of(8, 0), LocalTime.of(20, 0), 10000, "Store Notice", user2);
             storeList.add(store);
         }
 
@@ -70,15 +70,15 @@ class SearchServiceTest {
         storeList = new ArrayList<>();
         
         for (int i = 4; i <= 6; i++) {
-            Store store = Store.toEntity("김밥" + i, LocalTime.of(9, 0), LocalTime.of(18, 0), 10000, user2);
+            Store store = Store.toEntity("김밥" + i, LocalTime.of(9, 0), LocalTime.of(18, 0), 10000, "Store Notice", user2);
             storeList.add(store);
         }
         for (int i = 7; i <= 9; i++) {
-            Store store = Store.toEntity("김밥" + i, LocalTime.of(10, 0), LocalTime.of(23, 0), 10000, user3);
+            Store store = Store.toEntity("김밥" + i, LocalTime.of(10, 0), LocalTime.of(23, 0), 10000, "Store Notice", user3);
             storeList.add(store);
         }
         for (int i = 10; i <= 12; i++) {
-            Store store = Store.toEntity("김밥" + i, LocalTime.of(7, 0), LocalTime.of(13, 0), 10000, user4);
+            Store store = Store.toEntity("김밥" + i, LocalTime.of(7, 0), LocalTime.of(13, 0), 10000, "Store Notice", user4);
             storeList.add(store);
         }
 

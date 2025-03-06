@@ -28,4 +28,7 @@ public class StoreUpdateRequestDto {
     @NotNull(message = "최소 주문 금액은 필수 값 입니다.")
     private Integer minimumPrice;
 
+    @NotEmpty(message = "가게 공지는 필수 값 입니다.")
+    private String notice;
+
 }

@@ -49,7 +49,7 @@ class StoreHolidayServiceTest {
     void setUp() {
         authUser = new AuthUser(1L, "aa@aa.com", "name", UserRole.OWNER);
         user = User.fromAuthUser(authUser);
-        store = Store.toEntity("Test Store", null, null, 10000, user);
+        store = Store.toEntity("Test Store", null, null, 10000, "Store Notice", user);
         request = new StoreHolidayRequestDto(List.of(Holiday.MONDAY.getDay(), Holiday.WEDNESDAY.getDay()));
     }
 

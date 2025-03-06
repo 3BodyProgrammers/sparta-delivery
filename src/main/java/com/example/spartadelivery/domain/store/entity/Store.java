@@ -1,8 +1,6 @@
 package com.example.spartadelivery.domain.store.entity;
 
 import com.example.spartadelivery.common.entity.BaseEntity;
-import com.example.spartadelivery.config.LocalTimeConverter;
-import com.example.spartadelivery.domain.store.dto.request.StoreUpdateRequestDto;
 import com.example.spartadelivery.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -36,28 +34,34 @@ public class Store extends BaseEntity {
     @Column(nullable = false)
     private Integer holiday;
 
+    @Lob
+    @Column(columnDefinition = "TEXT", nullable = false)
+    private String notice;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    private Store(String name, LocalTime openAt, LocalTime closeAt, Integer minimumPrice, Integer holiday, User user) {
+    private Store(String name, LocalTime openAt, LocalTime closeAt, Integer minimumPrice, Integer holiday, String notice, User user) {
         this.name = name;
         this.openAt = openAt;
         this.closeAt = closeAt;
         this.holiday = holiday;
         this.minimumPrice = minimumPrice;
+        this.notice = notice;
         this.user = user;
     }
 
-    public static Store toEntity(String name, LocalTime openAt, LocalTime closeAt, Integer minimumPrice, User user) {
-        return new Store(name, openAt, closeAt, minimumPrice, 0, user);
+    public static Store toEntity(String name, LocalTime openAt, LocalTime closeAt, Integer minimumPrice, String notice, User user) {
+        return new Store(name, openAt, closeAt, minimumPrice, 0, notice, user);
     }
 
-    public void update(String name, LocalTime openAt, LocalTime closeAt, Integer minimumPrice) {
+    public void update(String name, LocalTime openAt, LocalTime closeAt, Integer minimumPrice, String notice) {
         this.name = name;
         this.openAt = openAt;
         this.closeAt = closeAt;
         this.minimumPrice = minimumPrice;
+        this.notice = notice;
     }
 
     public void delete() {
