@@ -132,11 +132,6 @@ public class OrderService {
         order.updateStatus(OrderStatus.CANCELED);
     }
 
-    public Order findOrderWithStoreById(Long orderId) {
-        return orderRepository.findWithStoreById(orderId)
-                .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "주문을 찾을 수 없습니다."));
-    }
-
     private boolean isOwnerOfStore(User user, Long storeId) {
         return UserRole.OWNER.equals(user.getUserRole()) && !storeGetService.findByIdAndDeletedAtIsNull(storeId)
                 .getUser().getId().equals(user.getId());
