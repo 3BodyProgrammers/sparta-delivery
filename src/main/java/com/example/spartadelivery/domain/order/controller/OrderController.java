@@ -1,6 +1,8 @@
 package com.example.spartadelivery.domain.order.controller;
 
 import com.example.spartadelivery.common.annotation.Auth;
+import com.example.spartadelivery.common.annotation.Owner;
+import com.example.spartadelivery.common.annotation.User;
 import com.example.spartadelivery.common.dto.AuthUser;
 import com.example.spartadelivery.domain.order.dto.request.OrderSaveRequestDto;
 import com.example.spartadelivery.domain.order.dto.request.OrderStatusUpdateRequestDto;
@@ -20,22 +22,24 @@ public class OrderController {
 
     private final OrderService orderService;
 
+    @User
     @PostMapping
     public ResponseEntity<OrderSaveResponseDto> save(
             @Auth AuthUser authUser,
             @RequestBody OrderSaveRequestDto request
     ) {
-        OrderSaveResponseDto response = orderService.save(authUser.getId(), authUser.getUserRole().name(), request);
+        OrderSaveResponseDto response = orderService.save(authUser, request);
         return ResponseEntity.ok(response);
     }
 
+    @Owner
     @PatchMapping("/{orderId}/status")
     public ResponseEntity<OrderStatusUpdateResponseDto> updateOrderStatus(
             @PathVariable Long orderId,
             @Auth AuthUser authUser,
             @RequestBody OrderStatusUpdateRequestDto request
     ) {
-        OrderStatusUpdateResponseDto response = orderService.updateOrderStatus(orderId, authUser.getUserRole().name(), request);
+        OrderStatusUpdateResponseDto response = orderService.updateOrderStatus(orderId, request);
         return ResponseEntity.ok(response);
     }
 
@@ -45,7 +49,7 @@ public class OrderController {
             @RequestParam(defaultValue = "10") int size,
             @Auth AuthUser authUser
     ) {
-        Page<OrderResponseDto> response = orderService.getOrders(authUser.getId(), authUser.getUserRole().name(), page, size);
+        Page<OrderResponseDto> response = orderService.getOrders(authUser, page, size);
         return ResponseEntity.ok(response);
     }
 
@@ -54,7 +58,7 @@ public class OrderController {
             @PathVariable Long orderId,
             @Auth AuthUser authUser
     ) {
-        OrderResponseDto response = orderService.getOrder(orderId, authUser.getId(), authUser.getUserRole().name());
+        OrderResponseDto response = orderService.getOrder(orderId, authUser);
         return ResponseEntity.ok(response);
     }
 
@@ -63,7 +67,7 @@ public class OrderController {
             @PathVariable Long orderId,
             @Auth AuthUser authUser
     ) {
-        orderService.cancelOrder(orderId, authUser.getId(), authUser.getUserRole().name());
+        orderService.cancelOrder(orderId, authUser);
         return ResponseEntity.noContent().build();
     }
 }

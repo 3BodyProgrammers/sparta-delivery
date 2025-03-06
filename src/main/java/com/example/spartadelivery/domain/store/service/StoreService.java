@@ -16,8 +16,10 @@ import com.example.spartadelivery.domain.store.dto.response.StoreSaveResponseDto
 import com.example.spartadelivery.domain.store.entity.Store;
 import com.example.spartadelivery.domain.store.repository.StoreRepository;
 import com.example.spartadelivery.domain.user.entity.User;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -25,10 +27,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -115,31 +113,6 @@ public class StoreService {
         menuGetService.findAllByStoreIdAndDeletedAtIsNull(id).forEach(Menu::delete);
 
         return StoreDeleteResponseDto.of("폐업 되었습니다.");
-    }
-
-    public Store findByIdAndDeletedAtIsNull(Long storeId) {
-        return storeRepository.findByIdAndDeletedAtIsNull(storeId)
-                .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "해당 가게는 존재하지 않습니다."));
-    }
-
-
-    //OrderService import
-    public Store findStoreById(Long storeId) {
-        return storeRepository.findById(storeId)
-                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "가게를 찾을 수 없습니다."));
-    }
-
-    public boolean isDeletedStore(Long storeId) {
-        Store store = findStoreById(storeId);
-        return store.getDeletedAt() != null;
-    }
-
-    public boolean isWithinBusinessHours(Store store, LocalDateTime now) {
-        return now.toLocalTime().isAfter(store.getOpenAt()) && now.toLocalTime().isBefore(store.getCloseAt());
-    } // 홀리데이 있으므로 시간만 비교
-
-    public List<Store> findStoresByOwnerId(Long ownerId) {
-        return storeRepository.findAllByUserId(ownerId);
     }
 
 }

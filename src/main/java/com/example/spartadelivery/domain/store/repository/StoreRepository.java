@@ -33,6 +33,6 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
 
     Page<Store> findByIdIn(List<Long> storeIdsFromMenus, Pageable pageable);
 
-    List<Store> findAllByUserId(Long ownerId);
+    List<Store> findAllByUserId(Long id);
 
 }

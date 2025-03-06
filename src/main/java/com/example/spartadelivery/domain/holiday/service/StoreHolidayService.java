@@ -9,8 +9,6 @@ import com.example.spartadelivery.domain.store.dto.response.StoreResponseDto;
 import com.example.spartadelivery.domain.store.entity.Store;
 import com.example.spartadelivery.domain.store.repository.StoreRepository;
 import com.example.spartadelivery.domain.user.entity.User;
-import com.example.spartadelivery.domain.user.enums.UserRole;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +40,6 @@ public class StoreHolidayService {
         return StoreResponseDto.of(findStore, holidays);
     }
 
-    //import OrderService
     public boolean isHoliday(Store store, LocalDateTime now) {
         int holidayValue = store.getHoliday();
         int todayValue = Holiday.valueOf(now.getDayOfWeek().name()).getValue();
