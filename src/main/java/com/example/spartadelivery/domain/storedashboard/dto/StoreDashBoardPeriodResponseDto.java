@@ -1,19 +1,19 @@
 package com.example.spartadelivery.domain.storedashboard.dto;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import lombok.Getter;
 
 @Getter
 public class StoreDashBoardPeriodResponseDto {
 
-    private final LocalDateTime startDay;
-    private final LocalDateTime endDay;
+    private final LocalDate startDay;
+    private final LocalDate endDay;
     private final Integer totalUser;
     private final Integer totalSales;
     private final List<StoreDashBoardDayResponseDto> dailyStats;
 
-    public StoreDashBoardPeriodResponseDto(LocalDateTime startDay, LocalDateTime endDay, Integer totalUser,
+    public StoreDashBoardPeriodResponseDto(LocalDate startDay, LocalDate endDay, Integer totalUser,
                                            Integer totalSales, List<StoreDashBoardDayResponseDto> dailyStats) {
         this.startDay = startDay;
         this.endDay = endDay;
@@ -23,7 +23,7 @@ public class StoreDashBoardPeriodResponseDto {
     }
 
 
-    public static StoreDashBoardPeriodResponseDto of(LocalDateTime startDay, LocalDateTime endDay, Integer totalUser,
+    public static StoreDashBoardPeriodResponseDto of(LocalDate startDay, LocalDate endDay, Integer totalUser,
                                                      Integer totalSales,
                                                      List<StoreDashBoardDayResponseDto> dailyStats) {
         return new StoreDashBoardPeriodResponseDto(startDay, endDay, totalUser, totalSales, dailyStats);

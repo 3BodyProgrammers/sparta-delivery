@@ -1,6 +1,9 @@
 package com.example.spartadelivery.domain.storedashboard.controller;
 
+import com.example.spartadelivery.common.annotation.Auth;
+import com.example.spartadelivery.common.dto.AuthUser;
 import com.example.spartadelivery.domain.storedashboard.dto.StoreDashBoardDayResponseDto;
+import com.example.spartadelivery.domain.storedashboard.dto.StoreDashBoardPeriodResponseDto;
 import com.example.spartadelivery.domain.storedashboard.service.StoreDashBoardService;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
@@ -20,18 +23,20 @@ public class StoreDashBoardController {
 
     private final StoreDashBoardService storeDashBoardService;
 
-    @GetMapping("/stores/{id}/dashboard")
+    @GetMapping("/stores/{id}/dashboard/daily")
     public ResponseEntity<StoreDashBoardDayResponseDto> getDailyStat(@PathVariable Long id,
+                                                                     @Auth AuthUser authUser,
                                                                      @RequestParam @NotBlank(message = "일은 필수 값입니다.") String day) {
-        StoreDashBoardDayResponseDto response = storeDashBoardService.getDailyStat(id, day);
+        StoreDashBoardDayResponseDto response = storeDashBoardService.getDailyStat(id, authUser, day);
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/stores/{id}/dashboard")
-    public ResponseEntity<StoreDashBoardDayResponseDto> getDailyStat(@PathVariable Long id,
+    @GetMapping("/stores/{id}/dashboard/period")
+    public ResponseEntity<StoreDashBoardPeriodResponseDto> getDailyStat(@PathVariable Long id,
+                                                                     @Auth AuthUser authUser,
                                                                      @RequestParam @NotBlank(message = "시작일은 필수 값입니다.") String startDay,
                                                                      @RequestParam @NotBlank(message = "종료일은 필수 값입니다.") String endDay) {
-        StoreDashBoardDayResponseDto response = storeDashBoardService.getPeriodStat(id, startDay, endDay);
+        StoreDashBoardPeriodResponseDto response = storeDashBoardService.getPeriodStat(id, authUser, startDay, endDay);
         return ResponseEntity.ok(response);
     }
 }
