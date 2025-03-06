@@ -51,9 +51,17 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderStatusUpdateResponseDto updateOrderStatus(Long orderId, OrderStatusUpdateRequestDto request) {
-        Order order = orderRepository.findById(orderId)
+    public OrderStatusUpdateResponseDto updateOrderStatus(Long orderId, AuthUser authUser, OrderStatusUpdateRequestDto request) {
+        Order order = orderRepository.findWithStoreAndUserById(orderId)
                 .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."));
+
+        User user = User.fromAuthUser(authUser);
+
+        Long storeId = order.getStore().getId();
+
+        if (isOwnerOfStore(user, storeId)) {
+            throw new CustomException(HttpStatus.FORBIDDEN, "본인의 가게에 들어온 주문만 상태 변경을 할 수 있습니다.");
+        }
 
         OrderStatus newStatus = request.getNewStatus();
         if (!order.getStatus().canChangeTo(newStatus)) {

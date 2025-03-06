@@ -6,7 +6,6 @@ import com.example.spartadelivery.domain.user.dto.request.UserDeleteRequestDto;
 import com.example.spartadelivery.domain.user.dto.request.UserUpdateRequestDto;
 import com.example.spartadelivery.domain.user.dto.response.UserResponseDto;
 import com.example.spartadelivery.domain.user.entity.User;
-import com.example.spartadelivery.domain.user.enums.UserRole;
 import com.example.spartadelivery.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -65,14 +64,4 @@ public class UserService {
     public User findUserById(Long userId) {
         return userRepository.findById(userId).orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "유저를 찾을 수 없습니다."));
     }
-
-    // import OrderService
-    public boolean isUser(UserRole userRole) {
-        return userRole == UserRole.USER;
-    }
-
-    public boolean isOwner(UserRole userRole) {
-        return userRole == UserRole.OWNER;
-    }
-
 }

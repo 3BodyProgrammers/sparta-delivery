@@ -1,6 +1,12 @@
 package com.example.spartadelivery.domain.order.service;
 
-import com.example.spartadelivery.common.annotation.Auth;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+
 import com.example.spartadelivery.common.dto.AuthUser;
 import com.example.spartadelivery.common.exception.CustomException;
 import com.example.spartadelivery.domain.holiday.service.StoreHolidayService;
@@ -12,28 +18,19 @@ import com.example.spartadelivery.domain.order.entity.Order;
 import com.example.spartadelivery.domain.order.enums.OrderStatus;
 import com.example.spartadelivery.domain.order.repository.OrderRepository;
 import com.example.spartadelivery.domain.store.entity.Store;
-import com.example.spartadelivery.domain.store.repository.StoreRepository;
-import com.example.spartadelivery.domain.store.service.StoreService;
+import com.example.spartadelivery.domain.store.service.StoreGetService;
 import com.example.spartadelivery.domain.user.entity.User;
 import com.example.spartadelivery.domain.user.enums.UserRole;
-import com.example.spartadelivery.domain.user.repository.UserRepository;
-import com.example.spartadelivery.domain.user.service.UserService;
+import java.time.LocalDateTime;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.time.LocalDateTime;
-
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.when;
+import org.springframework.http.HttpStatus;
 
 @ExtendWith(MockitoExtension.class)
 class OrderServiceTest {
@@ -42,16 +39,7 @@ class OrderServiceTest {
     private OrderRepository orderRepository;
 
     @Mock
-    private UserRepository userRepository;
-
-    @Mock
-    private StoreRepository storeRepository;
-
-    @Mock
-    private StoreService storeService;
-
-    @Mock
-    private UserService userService;
+    private StoreGetService storeGetService;
 
     @Mock
     private StoreHolidayService storeHolidayService;
@@ -61,216 +49,176 @@ class OrderServiceTest {
 
     @Nested
     class orderSaveTest {
+
         private OrderSaveRequestDto orderSaveRequestDto;
-        private AuthUser authUser;
-        private User testUser;
+        private AuthUser user;
+        private AuthUser owner;
+        private User testUser1, testUser2;
         private Store testStore;
 
         @BeforeEach
         void setUp() {
-            MockitoAnnotations.openMocks(this);
-
             // Given - 테스트 데이터 생성
             // 테스트용 사용자 생성
-            authUser = new AuthUser(1L, "aa@aa.com", "name", UserRole.USER);
-            testUser = new User(authUser.getEmail(), "password123", authUser.getName(), authUser.getUserRole());
+            user = new AuthUser(1L, "aa@aa.com", "name", UserRole.USER);
+            owner = new AuthUser(2L, "bb@bb.com", "name2", UserRole.OWNER);
+            testUser1 = User.fromAuthUser(user);
+            testUser2 = User.fromAuthUser(owner);
 
             // 테스트용 가게 생성
             testStore = Store.toEntity("테스트 가게", LocalDateTime.now().toLocalTime(),
-                    LocalDateTime.now().plusHours(8).toLocalTime(), 10000, testUser);
+                    LocalDateTime.now().plusHours(8).toLocalTime(), 10000, "공지", testUser2);
 
             // 주문 요청 DTO 생성 (storeId를 명확히 설정)
             orderSaveRequestDto = new OrderSaveRequestDto(1L, "치킨", 25000);
         }
 
         @Test
-        void 고객이_아닌_사용자가_주문한_경우_실패() {
+        void 가게가_없을_경우_실패(){
             //Given
-            when(userService.isUser(any())).thenReturn(false);
-            //When+Then
-            assertThatThrownBy(() -> orderService.save(testUser.getId(), "OWNER", orderSaveRequestDto))
-                    .isInstanceOf(CustomException.class)
-                    .hasMessage("주문 요청은 고객만 가능합니다.");
+            given(storeGetService.findByIdAndDeletedAtIsNull(any())).willThrow(new CustomException(HttpStatus.BAD_REQUEST, "해당 가게는 존재하지 않습니다."));
+
+            //When & Then
+            assertThatThrownBy(() -> orderService.save(user, orderSaveRequestDto))
+                    .isInstanceOf(CustomException.class).hasMessage("해당 가게는 존재하지 않습니다.");
         }
 
         @Test
-        void 폐업한_가계에_주문한_경우_실패() {
-            //given
-            when(userService.isUser(any())).thenReturn(true);
-            when(storeService.findStoreById(anyLong())).thenReturn(testStore); // 테스트용 가게 반환
-            when(storeService.isDeletedStore(anyLong())).thenReturn(true); // 가게가 폐업 상태로 설정
+        void 주문이_불가능한_요일_경우_실패(){
+            //Given
+            given(storeGetService.findByIdAndDeletedAtIsNull(any())).willReturn(testStore);
+            given(storeHolidayService.isHoliday(any(), any())).willReturn(true);
 
-            //when+then
-            assertThatThrownBy(() -> orderService.save(testUser.getId(), "USER", orderSaveRequestDto))
-                    .isInstanceOf(CustomException.class)
-                    .hasMessage("해당 가게는 현재 폐업 상태입니다.");
+            //When & Then
+            assertThatThrownBy(() -> orderService.save(user, orderSaveRequestDto))
+                    .isInstanceOf(CustomException.class).hasMessage("현재는 주문이 불가능한 시간입니다.");
         }
 
         @Test
-        void 휴일에_주문한_경우_실패() {
-            //given
-            when(userService.isUser(any())).thenReturn(true);
-            when(storeService.findStoreById(anyLong())).thenReturn(testStore);
-            when(storeService.isDeletedStore(anyLong())).thenReturn(false);
-            when(storeHolidayService.isHoliday(any(), any())).thenReturn(true); // 가게가 휴일 상태로 설정
+        void 주문이_불가능한_시간일_경우_실패(){
+            //Given
+            given(storeGetService.findByIdAndDeletedAtIsNull(any())).willReturn(testStore);
+            given(storeHolidayService.isHoliday(any(), any())).willReturn(false);
+            given(storeGetService.isWithinBusinessHours(any(), any())).willReturn(false);
 
-            // When + Then
-            assertThatThrownBy(() -> orderService.save(testUser.getId(), "USER", orderSaveRequestDto))
-                    .isInstanceOf(CustomException.class)
-                    .hasMessage("현재는 주문이 불가능한 시간입니다.");
+            //When & Then
+            assertThatThrownBy(() -> orderService.save(user, orderSaveRequestDto))
+                    .isInstanceOf(CustomException.class).hasMessage("현재는 주문이 불가능한 시간입니다.");
         }
 
         @Test
-        void 영업시간_아닌_시간에_주문한_경우_실패() {
-            // Given
-            when(userService.isUser(any())).thenReturn(true);
-            when(storeService.findStoreById(anyLong())).thenReturn(testStore);
-            when(storeService.isDeletedStore(anyLong())).thenReturn(false);
-            when(storeHolidayService.isHoliday(any(), any())).thenReturn(false);
-            when(storeService.isWithinBusinessHours(any(), any())).thenReturn(false); // 영업시간 외 설정
+        void 주문이_성공(){
+            //Given
+            Order order = Order.toEntity(testUser1, testStore, "치킨", 25000);
+            given(storeGetService.findByIdAndDeletedAtIsNull(any())).willReturn(testStore);
+            given(storeHolidayService.isHoliday(any(), any())).willReturn(false);
+            given(storeGetService.isWithinBusinessHours(any(), any())).willReturn(true);
+            given(orderRepository.save(any())).willReturn(order);
 
-            // When + Then
-            assertThatThrownBy(() -> orderService.save(testUser.getId(), "USER", orderSaveRequestDto))
-                    .isInstanceOf(CustomException.class)
-                    .hasMessage("현재는 주문이 불가능한 시간입니다.");
-        }
+            //When
+            OrderSaveResponseDto response = orderService.save(user, orderSaveRequestDto);
 
-        @Test
-        void 정상적인_주문을_한_경우_성공() {
-            // Given
-            when(userService.isUser(any())).thenReturn(true);
-            when(storeService.findStoreById(anyLong())).thenReturn(testStore);
-            when(storeService.isDeletedStore(anyLong())).thenReturn(false);
-            when(storeHolidayService.isHoliday(any(), any())).thenReturn(false);
-            when(storeService.isWithinBusinessHours(any(), any())).thenReturn(true);
-            when(userService.findUserById(anyLong())).thenReturn(testUser);
-            when(orderRepository.save(any())).thenAnswer(invocation -> {
-                Order order = invocation.getArgument(0);
-                return order; // 저장된 객체 반환
-            });
-
-            // When
-            OrderSaveResponseDto responseDto = orderService.save(1L, "USER", orderSaveRequestDto);
-
-            Order savedOrder = Order.toEntity(testUser, testStore, responseDto.getMenuName(), responseDto.getPrice());
-
-            // Then
-            assertNotNull(savedOrder);
-            assertEquals("치킨", savedOrder.getMenuName());
-            assertEquals(25000, savedOrder.getPrice());
+            //Then
+            assertThat(response).isNotNull();
+            assertThat(response.getMenuName()).isEqualTo("치킨");
         }
     }
 
-    @Nested
+   @Nested
     class orderStatusUpdateTest {
-        private OrderStatusUpdateRequestDto updateRequestDto;
-        private Order testOrder;
-        private User testOwner;
-        private Store testStore;
+
+       private OrderStatusUpdateRequestDto request;
+       private AuthUser user;
+       private AuthUser owner;
+       private User testUser1, testUser2;
+       private Store testStore;
+       private Order order;
 
         @BeforeEach
         void setUp() {
-            MockitoAnnotations.openMocks(this);
+            user = new AuthUser(1L, "aa@aa.com", "name", UserRole.USER);
+            owner = new AuthUser(2L, "bb@bb.com", "name2", UserRole.OWNER);
+            testUser1 = User.fromAuthUser(user);
+            testUser2 = User.fromAuthUser(owner);
 
-            testOwner = new User("owner@example.com", "password123", "사장님", UserRole.OWNER);
             testStore = Store.toEntity("테스트 가게", LocalDateTime.now().toLocalTime(),
-                    LocalDateTime.now().plusHours(8).toLocalTime(), 10000, testOwner);
-            testOrder = Order.toEntity(testOwner, testStore, "치킨", 25000);
+                    LocalDateTime.now().plusHours(8).toLocalTime(), 10000, "공지", testUser2);
+
+            request = new OrderStatusUpdateRequestDto(OrderStatus.ACCEPTED);
+            order = Order.toEntity(testUser1, testStore, "치킨", 25000);
         }
 
         @Test
-        void 고객이_주문_상태를_변경_하려는_경우_실패() {
-            // Given
-            when(userService.isOwner(any())).thenReturn(false); // 사용자가 사장님이 아님
-
-            updateRequestDto = new OrderStatusUpdateRequestDto(OrderStatus.ACCEPTED);
-
-            // When + Then
-            assertThatThrownBy(() -> orderService.updateOrderStatus(1L, "USER", updateRequestDto))
-                    .isInstanceOf(CustomException.class)
-                    .hasMessage("주문 상태 변경은 사장님만 가능합니다.");
+        void 주문이_존재_하지_않는_경우_실패() {
+            // given
+            long orderId = 1L;
+            given(orderRepository.findWithStoreAndUserById(any())).willReturn(Optional.empty());
+            // when & then
+            assertThatThrownBy(() -> orderService.updateOrderStatus(orderId, owner, request))
+                    .isInstanceOf(CustomException.class).hasMessage("주문을 찾을 수 없습니다.");
         }
 
-        @Test
-        void 존재하지_않는_주문의_상태를_변경하려는_경우_실패() {
-            // Given
-            when(userService.isOwner(any())).thenReturn(true);
-            when(orderRepository.findById(anyLong())).thenReturn(java.util.Optional.empty()); // 주문이 존재하지 않음
+       @Test
+       void 주문_변경_요청자가_해당_가게_사장님이_아닌_경우_실패() {
+           // given
+           long orderId = 1L;
+           AuthUser anotherOwner = new AuthUser(3L, "cc@cc.com", "name3", UserRole.OWNER);
+           given(orderRepository.findWithStoreAndUserById(any())).willReturn(Optional.of(order));
+           given(storeGetService.findByIdAndDeletedAtIsNull(any())).willReturn(testStore);
+           // when & then
+           assertThatThrownBy(() -> orderService.updateOrderStatus(orderId, anotherOwner, request))
+                   .isInstanceOf(CustomException.class).hasMessage("본인의 가게에 들어온 주문만 상태 변경을 할 수 있습니다.");
+       }
 
-            updateRequestDto = new OrderStatusUpdateRequestDto(OrderStatus.ACCEPTED);
+       @Test
+       void PENDING에서가능한_변경_테스트() {
+           assertTrue(OrderStatus.PENDING.canChangeTo(OrderStatus.ACCEPTED));
+           assertTrue(OrderStatus.PENDING.canChangeTo(OrderStatus.CANCELED));
+           assertFalse(OrderStatus.PENDING.canChangeTo(OrderStatus.DELIVERY));
+           assertFalse(OrderStatus.PENDING.canChangeTo(OrderStatus.COMPLETED));
+       }
 
-            // When + Then
-            assertThatThrownBy(() -> orderService.updateOrderStatus(1L, "OWNER", updateRequestDto))
-                    .isInstanceOf(CustomException.class)
-                    .hasMessage("주문을 찾을 수 없습니다.");
-        }
+       @Test
+       void ACCEPTED에서가능한_변경_테스트() {
+           assertTrue(OrderStatus.ACCEPTED.canChangeTo(OrderStatus.DELIVERY));
+           assertFalse(OrderStatus.ACCEPTED.canChangeTo(OrderStatus.CANCELED));
+           assertFalse(OrderStatus.ACCEPTED.canChangeTo(OrderStatus.COMPLETED));
+       }
 
-        @Test
-        void 이미_종료되었거나_취소된_주문을_변경하려는_경우_실패() {
-            // Given
-            when(userService.isOwner(any())).thenReturn(true);
-            when(orderRepository.findById(anyLong())).thenReturn(java.util.Optional.of(testOrder));
+       @Test
+       void DELIVERY에서가능한_변경_테스트() {
+           assertTrue(OrderStatus.DELIVERY.canChangeTo(OrderStatus.COMPLETED));
+           assertFalse(OrderStatus.DELIVERY.canChangeTo(OrderStatus.PENDING));
+           assertFalse(OrderStatus.DELIVERY.canChangeTo(OrderStatus.ACCEPTED));
+       }
 
-            // 주문을 COMPLETED 상태로 변경
-            testOrder.updateStatus(OrderStatus.COMPLETED);
-            updateRequestDto = new OrderStatusUpdateRequestDto(OrderStatus.ACCEPTED);
+       @Test
+       void COMPLETED에서변경_불가능_테스트() {
+           assertFalse(OrderStatus.COMPLETED.canChangeTo(OrderStatus.PENDING));
+           assertFalse(OrderStatus.COMPLETED.canChangeTo(OrderStatus.ACCEPTED));
+           assertFalse(OrderStatus.COMPLETED.canChangeTo(OrderStatus.DELIVERY));
+       }
 
-            // When + Then
-            assertThatThrownBy(() -> orderService.updateOrderStatus(1L, "OWNER", updateRequestDto))
-                    .isInstanceOf(CustomException.class)
-                    .hasMessage("잘못된 주문 상태 변경 요청입니다.");
-        }
+       @Test
+       void CANCELED에서변경_불가능_테스트() {
+           assertFalse(OrderStatus.CANCELED.canChangeTo(OrderStatus.PENDING));
+           assertFalse(OrderStatus.CANCELED.canChangeTo(OrderStatus.ACCEPTED));
+           assertFalse(OrderStatus.CANCELED.canChangeTo(OrderStatus.DELIVERY));
+       }
 
-        @Test
-        void 정상적으로_주문_상태를_변경하는_경우_성공() {
-            // Given
-            when(userService.isOwner(any())).thenReturn(true);
-            when(orderRepository.findById(anyLong())).thenReturn(java.util.Optional.of(testOrder));
+       @Test
+       void 주문_상태_변경성공() {
+           // given
+           long orderId = 1L;
+           given(orderRepository.findWithStoreAndUserById(any())).willReturn(Optional.of(order));
+           given(storeGetService.findByIdAndDeletedAtIsNull(any())).willReturn(testStore);
 
-            updateRequestDto = new OrderStatusUpdateRequestDto(OrderStatus.ACCEPTED);
+           // when
+           OrderStatusUpdateResponseDto response = orderService.updateOrderStatus(orderId, owner, request);
 
-            // When
-            OrderStatusUpdateResponseDto responseDto = orderService.updateOrderStatus(1L, "OWNER", updateRequestDto);
-
-            // Then
-            assertNotNull(responseDto);
-            assertEquals(OrderStatus.ACCEPTED, responseDto.getUpdatedStatus());
-        }
-
-        @Test
-        void PENDING에서가능한_변경_테스트() {
-            assertTrue(OrderStatus.PENDING.canChangeTo(OrderStatus.ACCEPTED));
-            assertTrue(OrderStatus.PENDING.canChangeTo(OrderStatus.CANCELED));
-            assertFalse(OrderStatus.PENDING.canChangeTo(OrderStatus.DELIVERY));
-            assertFalse(OrderStatus.PENDING.canChangeTo(OrderStatus.COMPLETED));
-        }
-
-        @Test
-        void ACCEPTED에서가능한_변경_테스트() {
-            assertTrue(OrderStatus.ACCEPTED.canChangeTo(OrderStatus.DELIVERY));
-            assertFalse(OrderStatus.ACCEPTED.canChangeTo(OrderStatus.CANCELED));
-            assertFalse(OrderStatus.ACCEPTED.canChangeTo(OrderStatus.COMPLETED));
-        }
-
-        @Test
-        void DELIVERY에서가능한_변경_테스트() {
-            assertTrue(OrderStatus.DELIVERY.canChangeTo(OrderStatus.COMPLETED));
-            assertFalse(OrderStatus.DELIVERY.canChangeTo(OrderStatus.PENDING));
-            assertFalse(OrderStatus.DELIVERY.canChangeTo(OrderStatus.ACCEPTED));
-        }
-
-        @Test
-        void COMPLETED에서변경_불가능_테스트() {
-            assertFalse(OrderStatus.COMPLETED.canChangeTo(OrderStatus.PENDING));
-            assertFalse(OrderStatus.COMPLETED.canChangeTo(OrderStatus.ACCEPTED));
-            assertFalse(OrderStatus.COMPLETED.canChangeTo(OrderStatus.DELIVERY));
-        }
-
-        @Test
-        void CANCELED에서변경_불가능_테스트() {
-            assertFalse(OrderStatus.CANCELED.canChangeTo(OrderStatus.PENDING));
-            assertFalse(OrderStatus.CANCELED.canChangeTo(OrderStatus.ACCEPTED));
-            assertFalse(OrderStatus.CANCELED.canChangeTo(OrderStatus.DELIVERY));
-        }
+           // then
+           assertThat(response).isNotNull();
+           assertThat(response.getUpdatedStatus()).isEqualTo(OrderStatus.ACCEPTED);
+       }
     }
 }
