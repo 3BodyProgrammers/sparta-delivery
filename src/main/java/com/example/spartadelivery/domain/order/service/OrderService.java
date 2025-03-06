@@ -95,7 +95,7 @@ public class OrderService {
         }
 
         Long storeId = order.getStore().getId();
-    
+
         if (isOwnerOfStore(user, storeId)) {
             throw new CustomException(HttpStatus.FORBIDDEN, "본인의 가게에 들어온 주문만 조회할 수 있습니다.");
         }
