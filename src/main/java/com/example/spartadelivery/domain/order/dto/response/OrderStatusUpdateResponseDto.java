@@ -34,7 +34,7 @@ public class OrderStatusUpdateResponseDto {
                 order.getPrice(),
                 order.getStatus(),
                 order.getCreatedAt(),
-                order.getModifiedAt()
+                LocalDateTime.now()
         );
     }
 }

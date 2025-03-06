@@ -19,6 +19,7 @@ import com.example.spartadelivery.domain.review.dto.response.ReviewResponseDto;
 import com.example.spartadelivery.domain.review.entity.Review;
 import com.example.spartadelivery.domain.review.repository.ReviewRepository;
 import com.example.spartadelivery.domain.store.entity.Store;
+import com.example.spartadelivery.domain.store.service.StoreGetService;
 import com.example.spartadelivery.domain.store.service.StoreService;
 import com.example.spartadelivery.domain.user.entity.User;
 import com.example.spartadelivery.domain.user.enums.UserRole;
@@ -50,7 +51,7 @@ class ReviewServiceTest {
     private OrderService orderService;
 
     @Mock
-    private StoreService storeService;
+    private StoreGetService storeGetService;
 
     @InjectMocks
     private ReviewService reviewService;
@@ -68,7 +69,7 @@ class ReviewServiceTest {
         void setUp() {
             authUser = new AuthUser(1L, "aa@aa.com", "name", UserRole.USER);
             user = User.fromAuthUser(authUser);
-            store = Store.toEntity("Store", LocalTime.of(8, 0), LocalTime.of(22, 0), 10000, "Store Notice", user);
+            store = Store.toEntity("Store", LocalTime.of(8, 0), LocalTime.of(22, 0), 10000, user);
             order = Order.toEntity(user, store, "menuName", 12000);
             requestDto = new ReviewRequestDto((byte) 5, "Great food!");
         }
@@ -151,7 +152,7 @@ class ReviewServiceTest {
             size = 10;
 
             Store store = mock(Store.class);
-            given(storeService.findByIdAndDeletedAtIsNull(storeId)).willReturn(store);
+            given(storeGetService.findByIdAndDeletedAtIsNull(storeId)).willReturn(store);
 
             Review review1 = new Review((byte) 5, "Excellent", mock(User.class), store, mock(Order.class));
             Review review2 = new Review((byte) 4, "Good", mock(User.class), store, mock(Order.class));
@@ -216,7 +217,7 @@ class ReviewServiceTest {
         void setUp() {
             authUser = new AuthUser(1L, "aa@aa.com", "name", UserRole.USER);
             user = User.fromAuthUser(authUser);
-            store = Store.toEntity("Store", LocalTime.of(8, 0), LocalTime.of(22, 0), 10000, "Store Notice", user);
+            store = Store.toEntity("Store", LocalTime.of(8, 0), LocalTime.of(22, 0), 10000, user);
             order = Order.toEntity(user, store, "menuName", 12000);
             requestDto = new ReviewRequestDto((byte) 5, "Great food!");
             review = new Review(requestDto.getRating(), requestDto.getComments(), user, store, order);
@@ -326,7 +327,7 @@ class ReviewServiceTest {
         void setUp() {
             authUser = new AuthUser(1L, "aa@aa.com", "name", UserRole.USER);
             user = User.fromAuthUser(authUser);
-            store = Store.toEntity("Store", LocalTime.of(8, 0), LocalTime.of(22, 0), 10000, "Store Notice", user);
+            store = Store.toEntity("Store", LocalTime.of(8, 0), LocalTime.of(22, 0), 10000, user);
             order = Order.toEntity(user, store, "menuName", 12000);
             review = new Review((byte) 5, "Great food!", user, store, order);
         }

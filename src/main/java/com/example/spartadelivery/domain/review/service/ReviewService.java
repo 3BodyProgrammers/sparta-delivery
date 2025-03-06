@@ -5,7 +5,7 @@ import com.example.spartadelivery.common.dto.AuthUser;
 import com.example.spartadelivery.common.exception.CustomException;
 import com.example.spartadelivery.domain.order.entity.Order;
 import com.example.spartadelivery.domain.order.enums.OrderStatus;
-import com.example.spartadelivery.domain.order.service.OrderService;
+import com.example.spartadelivery.domain.order.service.OrderGetService;
 import com.example.spartadelivery.domain.review.dto.request.ReviewRequestDto;
 import com.example.spartadelivery.domain.review.dto.response.ReviewPageResponseDto;
 import com.example.spartadelivery.domain.review.dto.response.ReviewResponseDto;
@@ -28,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
-    private final OrderService orderService;
+    private final OrderGetService orderGetService;
     private final StoreGetService storeGetService;
 
     @Transactional
@@ -39,7 +39,7 @@ public class ReviewService {
             throw new CustomException(HttpStatus.BAD_REQUEST, "이미 작성된 리뷰가 있거나 삭제된 주문입니다. 리뷰를 다시 작성할 수 없습니다.");
         }
 
-        Order order = orderService.findOrderWithStoreById(orderId);
+        Order order = orderGetService.findOrderWithStoreById(orderId);
 
         if (!isCompleted(order.getStatus())) {
             throw new CustomException(HttpStatus.FORBIDDEN, "배달이 완료되지 않아 리뷰를 작성할 수 없습니다.");

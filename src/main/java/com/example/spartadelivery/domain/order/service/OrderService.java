@@ -95,7 +95,7 @@ public class OrderService {
         }
 
         Long storeId = order.getStore().getId();
-    
+
         if (isOwnerOfStore(user, storeId)) {
             throw new CustomException(HttpStatus.FORBIDDEN, "본인의 가게에 들어온 주문만 조회할 수 있습니다.");
         }
@@ -130,11 +130,6 @@ public class OrderService {
         }
 
         order.updateStatus(OrderStatus.CANCELED);
-    }
-
-    public Order findOrderWithStoreById(Long orderId) {
-        return orderRepository.findWithStoreById(orderId)
-                .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "주문을 찾을 수 없습니다."));
     }
 
     private boolean isOwnerOfStore(User user, Long storeId) {
