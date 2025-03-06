@@ -12,7 +12,7 @@ import com.example.spartadelivery.common.dto.AuthUser;
 import com.example.spartadelivery.common.exception.CustomException;
 import com.example.spartadelivery.domain.order.entity.Order;
 import com.example.spartadelivery.domain.order.enums.OrderStatus;
-import com.example.spartadelivery.domain.order.service.OrderService;
+import com.example.spartadelivery.domain.order.service.OrderGetService;
 import com.example.spartadelivery.domain.review.dto.request.ReviewRequestDto;
 import com.example.spartadelivery.domain.review.dto.response.ReviewPageResponseDto;
 import com.example.spartadelivery.domain.review.dto.response.ReviewResponseDto;
@@ -20,7 +20,6 @@ import com.example.spartadelivery.domain.review.entity.Review;
 import com.example.spartadelivery.domain.review.repository.ReviewRepository;
 import com.example.spartadelivery.domain.store.entity.Store;
 import com.example.spartadelivery.domain.store.service.StoreGetService;
-import com.example.spartadelivery.domain.store.service.StoreService;
 import com.example.spartadelivery.domain.user.entity.User;
 import com.example.spartadelivery.domain.user.enums.UserRole;
 import java.time.LocalDateTime;
@@ -48,7 +47,7 @@ class ReviewServiceTest {
     private ReviewRepository reviewRepository;
 
     @Mock
-    private OrderService orderService;
+    private OrderGetService orderGetService;
 
     @Mock
     private StoreGetService storeGetService;
@@ -69,7 +68,7 @@ class ReviewServiceTest {
         void setUp() {
             authUser = new AuthUser(1L, "aa@aa.com", "name", UserRole.USER);
             user = User.fromAuthUser(authUser);
-            store = Store.toEntity("Store", LocalTime.of(8, 0), LocalTime.of(22, 0), 10000, user);
+            store = Store.toEntity("Store", LocalTime.of(8, 0), LocalTime.of(22, 0), 10000, "Store Notice", user);
             order = Order.toEntity(user, store, "menuName", 12000);
             requestDto = new ReviewRequestDto((byte) 5, "Great food!");
         }
@@ -82,7 +81,7 @@ class ReviewServiceTest {
             Review review = new Review(requestDto.getRating(), requestDto.getComments(), user, store, order);
 
             given(reviewRepository.existsByOrderId(orderId)).willReturn(false);
-            given(orderService.findOrderWithStoreById(orderId)).willReturn(order);
+            given(orderGetService.findOrderWithStoreById(orderId)).willReturn(order);
             given(reviewRepository.save(any(Review.class))).willReturn(review);
 
             // when
@@ -112,7 +111,7 @@ class ReviewServiceTest {
             // given
             long orderId = 1L;
             given(reviewRepository.existsByOrderId(orderId)).willReturn(false);
-            given(orderService.findOrderWithStoreById(orderId)).willReturn(order);
+            given(orderGetService.findOrderWithStoreById(orderId)).willReturn(order);
 
             // when & then
             CustomException exception = assertThrows(CustomException.class,
@@ -125,7 +124,7 @@ class ReviewServiceTest {
             // given
             long orderId = 1L;
             given(reviewRepository.existsByOrderId(orderId)).willReturn(false);
-            given(orderService.findOrderWithStoreById(orderId)).willReturn(order);
+            given(orderGetService.findOrderWithStoreById(orderId)).willReturn(order);
             order.updateStatus(OrderStatus.COMPLETED);
             store.delete();
 
@@ -217,7 +216,7 @@ class ReviewServiceTest {
         void setUp() {
             authUser = new AuthUser(1L, "aa@aa.com", "name", UserRole.USER);
             user = User.fromAuthUser(authUser);
-            store = Store.toEntity("Store", LocalTime.of(8, 0), LocalTime.of(22, 0), 10000, user);
+            store = Store.toEntity("Store", LocalTime.of(8, 0), LocalTime.of(22, 0), 10000, "Store Notice", user);
             order = Order.toEntity(user, store, "menuName", 12000);
             requestDto = new ReviewRequestDto((byte) 5, "Great food!");
             review = new Review(requestDto.getRating(), requestDto.getComments(), user, store, order);
@@ -327,7 +326,7 @@ class ReviewServiceTest {
         void setUp() {
             authUser = new AuthUser(1L, "aa@aa.com", "name", UserRole.USER);
             user = User.fromAuthUser(authUser);
-            store = Store.toEntity("Store", LocalTime.of(8, 0), LocalTime.of(22, 0), 10000, user);
+            store = Store.toEntity("Store", LocalTime.of(8, 0), LocalTime.of(22, 0), 10000, "Store Notice", user);
             order = Order.toEntity(user, store, "menuName", 12000);
             review = new Review((byte) 5, "Great food!", user, store, order);
         }

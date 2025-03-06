@@ -30,6 +30,6 @@ public class StoreResponseDto {
     }
 
     public static StoreResponseDto of(Store store, List<String> holidays) {
-        return new StoreResponseDto(store.getId(), store.getName(), store.getOpenAt(), store.getCloseAt(), store.getMinimumPrice(), holidays, store.getCreatedAt(), LocalDateTime.now());
+        return new StoreResponseDto(store.getId(), store.getName(), store.getOpenAt(), store.getCloseAt(), store.getMinimumPrice(), holidays, store.getCreatedAt(), store.getModifiedAt());
     }
 }
