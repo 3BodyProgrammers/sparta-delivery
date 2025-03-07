@@ -18,7 +18,7 @@ public class OrderGetService {
 
     public Order findOrderWithStoreById(Long orderId) {
         return orderRepository.findWithStoreById(orderId)
-                .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "주문을 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."));
     }
 
     public List<Order> findAllByStoreIdAndDeletedAtBetweenAndStatus(Long id, LocalDateTime start, LocalDateTime end) {

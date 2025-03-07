@@ -25,9 +25,10 @@ public class StoreHolidayService {
 
     @Transactional
     public StoreResponseDto updateHolidays(Long id, AuthUser authUser, StoreHolidayRequestDto request) {
+        request.validate();
         User user = User.fromAuthUser(authUser);
 
-        Store findStore = storeRepository.findByIdAndUserIdAndDeletedAtIsNull(id, user.getId()).orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "해당 가게는 존재하지 않습니다."));
+        Store findStore = storeRepository.findByIdAndUserIdAndDeletedAtIsNull(id, user.getId()).orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "해당 가게는 존재하지 않습니다."));
 
         if (!findStore.getUser().getId().equals(user.getId())) {
             throw new CustomException(HttpStatus.FORBIDDEN, "가게 휴일 수정은 가게의 사장님만 가능 합니다.");

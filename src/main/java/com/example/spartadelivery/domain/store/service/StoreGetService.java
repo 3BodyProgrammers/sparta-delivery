@@ -28,7 +28,7 @@ public class StoreGetService {
 
     public Store findByIdAndDeletedAtIsNull(Long storeId) {
         return storeRepository.findByIdAndDeletedAtIsNull(storeId)
-                .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "해당 가게는 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "해당 가게는 존재하지 않습니다."));
     }
 
     public boolean isWithinBusinessHours(Store store, LocalDateTime now) {

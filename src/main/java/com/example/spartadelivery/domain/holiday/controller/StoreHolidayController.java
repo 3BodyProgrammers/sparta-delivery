@@ -6,7 +6,6 @@ import com.example.spartadelivery.common.dto.AuthUser;
 import com.example.spartadelivery.domain.holiday.dto.request.StoreHolidayRequestDto;
 import com.example.spartadelivery.domain.holiday.service.StoreHolidayService;
 import com.example.spartadelivery.domain.store.dto.response.StoreResponseDto;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,7 +24,6 @@ public class StoreHolidayController {
     @Owner
     @PostMapping("/stores/{id}/holidays")
     public ResponseEntity<StoreResponseDto> updateHolidays(@PathVariable Long id, @Auth AuthUser authUser, @RequestBody StoreHolidayRequestDto request){
-        request.validate();
         StoreResponseDto response = storeHolidayService.updateHolidays(id, authUser, request);
         return ResponseEntity.ok(response);
     }

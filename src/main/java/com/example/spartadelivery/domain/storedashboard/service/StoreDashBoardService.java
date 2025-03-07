@@ -33,7 +33,7 @@ public class StoreDashBoardService {
         Store findStore = storeGetService.findByIdAndDeletedAtIsNull(id);
         User user = User.fromAuthUser(authUser);
         if (!findStore.getUser().getId().equals(user.getId())) {
-            throw new CustomException(HttpStatus.FORBIDDEN, "가게 폐업은 가게의 사장님만 가능 합니다.");
+            throw new CustomException(HttpStatus.FORBIDDEN, "가게 통계 조회는 가게의 사장님만 가능 합니다.");
         }
 
         LocalDateTime[] date = getLocalDateTime(day, day);
@@ -55,7 +55,7 @@ public class StoreDashBoardService {
         User user = User.fromAuthUser(authUser);
 
         if (!findStore.getUser().getId().equals(user.getId())) {
-            throw new CustomException(HttpStatus.FORBIDDEN, "가게 폐업은 가게의 사장님만 가능 합니다.");
+            throw new CustomException(HttpStatus.FORBIDDEN, "가게 통계 조회는 가게의 사장님만 가능 합니다.");
         }
 
         LocalDateTime[] date = getLocalDateTime(startDay, endDay);

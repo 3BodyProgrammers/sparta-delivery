@@ -51,7 +51,7 @@ public class MenuService {
         User user = User.fromAuthUser(authUser);
 
         Menu findMenu = menuRepository.findById(id)
-                .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "해당 메뉴는 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "해당 메뉴는 존재하지 않습니다."));
 
         Store findStore = storeGetService.findByIdAndDeletedAtIsNull(storeId);
 
@@ -68,7 +68,7 @@ public class MenuService {
         User user = User.fromAuthUser(authUser);
 
         Menu findMenu = menuRepository.findById(id)
-                .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "해당 메뉴는 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "해당 메뉴는 존재하지 않습니다."));
 
         Store findStore = storeGetService.findByIdAndDeletedAtIsNull(storeId);
 

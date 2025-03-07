@@ -15,28 +15,28 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/stores/{storeId}")
 @RequiredArgsConstructor
 public class MenuController {
 
     private final MenuService menuService;
 
     @Owner
-    @PostMapping("/stores/{storeId}/menus")
+    @PostMapping("/menus")
     public ResponseEntity<MenuSaveResponseDto> saveMenu(@PathVariable Long storeId, @Auth AuthUser authUser, @Valid @RequestBody MenuSaveRequestDto request) {
         MenuSaveResponseDto response = menuService.saveMenu(storeId, authUser, request);
         return ResponseEntity.ok(response);
     }
 
     @Owner
-    @PutMapping("/stores/{storeId}/menus/{id}")
+    @PutMapping("/menus/{id}")
     public ResponseEntity<MenuUpdateResponseDto> updateMenu(@PathVariable Long storeId, @PathVariable Long id, @Auth AuthUser authUser, @Valid @RequestBody MenuUpdateRequestDto request) {
         MenuUpdateResponseDto response = menuService.updateMenu(id, storeId, authUser, request);
         return ResponseEntity.ok(response);
     }
 
     @Owner
-    @PostMapping("/stores/{storeId}/menus/{id}")
+    @PostMapping("/menus/{id}")
     public ResponseEntity<MenuDeleteResponseDto> deleteMenu(@PathVariable Long storeId, @PathVariable Long id, @Auth AuthUser authUser) {
         MenuDeleteResponseDto response = menuService.deleteMenu(storeId, id, authUser);
         return ResponseEntity.ok(response);

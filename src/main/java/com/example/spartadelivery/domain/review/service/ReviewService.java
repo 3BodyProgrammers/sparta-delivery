@@ -120,7 +120,7 @@ public class ReviewService {
 
     public Review findReviewById(Long reviewId) {
         Review review = reviewRepository.findReviewWithStoreById(reviewId)
-                .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "리뷰를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "리뷰를 찾을 수 없습니다."));
 
         if (review.getStore() == null || review.getStore().getDeletedAt() != null) {
             throw new CustomException(HttpStatus.NOT_FOUND, "해당 가게가 존재하지 않거나 삭제되었습니다.");

@@ -62,6 +62,6 @@ public class UserService {
     }
 
     public User findUserById(Long userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "유저를 찾을 수 없습니다."));
+        return userRepository.findById(userId).orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다."));
     }
 }

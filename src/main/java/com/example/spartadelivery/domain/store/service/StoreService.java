@@ -70,7 +70,7 @@ public class StoreService {
     @Transactional(readOnly = true)
     public StoreDetailResponseDto getStore(Long id) {
         Store findStore = storeRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "해당 가게는 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "해당 가게는 존재하지 않습니다."));
         List<String> holidays = holidayConverter.convertToEntityAttribute(findStore.getHoliday());
         List<MenuForStoreResponseDto> menuList = menuGetService.findAllByStoreIdAndDeletedAtIsNull(id).stream()
                 .map(MenuForStoreResponseDto::of).toList();
@@ -82,7 +82,7 @@ public class StoreService {
         User user = User.fromAuthUser(authUser);
 
         Store findStore = storeRepository.findByIdAndUserIdAndDeletedAtIsNull(id, user.getId())
-                .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "해당 가게는 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "해당 가게는 존재하지 않습니다."));
 
         if (!findStore.getUser().getId().equals(user.getId())) {
             throw new CustomException(HttpStatus.FORBIDDEN, "가게 수정은 가게의 사장님만 가능 합니다.");
@@ -101,7 +101,7 @@ public class StoreService {
         User user = User.fromAuthUser(authUser);
 
         Store findStore = storeRepository.findByIdAndUserIdAndDeletedAtIsNull(id, user.getId())
-                .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "해당 가게는 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "해당 가게는 존재하지 않습니다."));
 
         if (!findStore.getUser().getId().equals(user.getId())) {
             throw new CustomException(HttpStatus.FORBIDDEN, "가게 폐업은 가게의 사장님만 가능 합니다.");
