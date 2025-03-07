@@ -4,6 +4,7 @@ import com.example.spartadelivery.common.exception.CustomException;
 import com.example.spartadelivery.domain.store.entity.Store;
 import com.example.spartadelivery.domain.store.repository.StoreRepository;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -31,7 +32,17 @@ public class StoreGetService {
     }
 
     public boolean isWithinBusinessHours(Store store, LocalDateTime now) {
-        return now.toLocalTime().isAfter(store.getOpenAt()) && now.toLocalTime().isBefore(store.getCloseAt());
+        LocalTime currentTime = now.toLocalTime();
+        LocalTime openTime = store.getOpenAt();
+        LocalTime closeTime = store.getCloseAt();
+
+        // closeAt이 openAt보다 빠른 경우 (야간 영업 고려)
+        if (closeTime.isBefore(openTime)) {
+            return currentTime.isAfter(openTime) || currentTime.isBefore(closeTime);
+        }
+
+        // 영업 종료 시간이 자정 전인 경우
+        return currentTime.isAfter(openTime) && currentTime.isBefore(closeTime);
     }
 
     public List<Store> findAllByUserId(Long id) {
