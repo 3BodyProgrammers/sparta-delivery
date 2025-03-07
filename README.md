@@ -399,6 +399,11 @@ erDiagram
 
 ---
 
+## ✅ **Test Coverage**
+
+<img width="800" alt="image" src="https://github.com/user-attachments/assets/db45bc07-d11a-492b-9cf2-e65ff1ed292d" />
+
+---
 ## 🔗 **참조**
 
 [팀 노션 페이지](https://www.notion.so/teamsparta/16-3BodyProgrammers-1a82dc3ef514801a9edaf3af76e48bb6#1a82dc3ef51481e1808efdc27095a8fa)
